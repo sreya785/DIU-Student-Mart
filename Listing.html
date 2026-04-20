@@ -77,3 +77,43 @@
       <a href="admin.html">Admin Panel</a>
     </div>
   </footer>
+
+  <script src="app.js"></script>
+  <script>
+    window.onload = function() {
+      checkLoginStatus();
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('search')) document.getElementById('f-search').value = params.get('search');
+      if (params.get('cat')) document.getElementById('f-cat').value = params.get('cat');
+      applyFilters();
+    };
+ 
+    function setCat(cat, el) {
+      document.querySelectorAll('.cat-pill').forEach(p => p.classList.remove('active'));
+      el.classList.add('active');
+      document.getElementById('f-cat').value = cat;
+      applyFilters();
+    }
+ 
+    function applyFilters() {
+      const search = document.getElementById('f-search').value;
+      const cat = document.getElementById('f-cat').value;
+      const cond = document.getElementById('f-cond').value;
+      const sort = document.getElementById('f-sort').value;
+      fetch(`api/listings.php?action=getAll&search=${search}&cat=${cat}&cond=${cond}&sort=${sort}`)
+        .then(res => res.json())
+        .then(data => {
+          const grid = document.getElementById('listings-grid');
+          const empty = document.getElementById('list-empty');
+          if (!data.length) {
+            grid.innerHTML = '';
+            empty.style.display = 'block';
+          } else {
+            empty.style.display = 'none';
+            grid.innerHTML = data.map(cardHtml).join('');
+          }
+        });
+    }
+  </script>
+</body>
+</html>
