@@ -6,3 +6,85 @@
   <title>Post a Listing — DIU Student Mart</title>
   <link rel="stylesheet" href="style.css">
 </head>
+
+<body>
+ 
+  <nav class="navbar">
+    <div class="nav-logo" onclick="window.location.href='index.html'">
+      <div class="logo-box">SM</div>
+      DIU Student Mart
+    </div>
+    <div class="nav-links">
+      <a href="index.html">Home</a>
+      <a href="listings.html">Browse</a>
+      <a href="post-listing.html" class="btn-post active">+ Post Item</a>
+      <a href="profile.html" id="nav-profile" style="display:none">Profile</a>
+      <a href="admin.html" id="nav-admin" style="display:none">Admin</a>
+      <a href="auth.html" id="nav-login">Login</a>
+      <a href="#" id="nav-logout" style="display:none" onclick="logout()">Logout</a>
+    </div>
+  </nav>
+ 
+  <div class="container">
+    <div class="post-card">
+      <h2 style="font-size:18px;font-weight:700;margin-bottom:4px">Post a New Listing</h2>
+      <p style="font-size:13px;color:#777;margin-bottom:20px">Fill in the details to list your item</p>
+ 
+      <div class="alert alert-error" id="post-error" style="display:none"></div>
+      <div class="alert alert-success" id="post-success" style="display:none"></div>
+ 
+      <div class="form-group">
+        <label>Item Title *</label>
+        <input type="text" id="p-title" placeholder="e.g. Data Structures textbook by Goodrich">
+      </div>
+      <div class="form-group">
+        <label>Category *</label>
+        <select id="p-cat">
+          <option>Books & Notes</option>
+          <option>Electronics & Gadgets</option>
+          <option>Project Files / Source Code</option>
+          <option>Games & Accessories</option>
+          <option>Miscellaneous</option>
+        </select>
+      </div>
+      <div class="two-col">
+        <div class="form-group">
+          <label>Price (৳) *</label>
+          <input type="number" id="p-price" placeholder="0" min="0">
+        </div>
+        <div class="form-group">
+          <label>Condition *</label>
+          <select id="p-cond">
+            <option>New</option>
+            <option>Used</option>
+            <option>Digital</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Department</label>
+        <select id="p-dept">
+          <option>CSE</option><option>EEE</option><option>BBA</option>
+          <option>CE</option><option>Textile</option><option>Law</option>
+          <option>English</option><option>Pharmacy</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Description *</label>
+        <textarea id="p-desc" placeholder="Describe your item — condition, edition, what's included, etc."></textarea>
+      </div>
+      <div class="form-group">
+        <label>Status</label>
+        <select id="p-status">
+          <option>Available</option>
+          <option>Reserved</option>
+        </select>
+      </div>
+      <button class="btn-full" onclick="doPost()">Post Listing</button>
+    </div>
+  </div>
+ 
+  <footer class="footer">
+    <div class="footer-logo">DIU Student Mart</div>
+    <div class="footer-links"><a href="#">About</a></div>
+  </footer>
