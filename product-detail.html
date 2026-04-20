@@ -59,3 +59,97 @@
     <div class="footer-links"><a href="#">About</a></div>
   </footer>
  
+  <script src="app.js"></script>
+  <script>
+    let currentItem = null;
+    const ICONS = {
+      'Books & Notes': '📚',
+      'Electronics & Gadgets': '💻',
+      'Project Files / Source Code': '🗂️',
+      'Games & Accessories': '🎮',
+      'Miscellaneous': '📦'
+    };
+ 
+    window.onload = function() {
+      checkLoginStatus();
+      const id = new URLSearchParams(window.location.search).get('id');
+      if (!id) { window.location.href = 'listings.html'; return; }
+      fetch(api/listings.php?action=getOne&id=${id})
+        .then(res => res.json())
+        .then(item => {
+          if (!item || item.error) { document.getElementById('detail-content').innerHTML = '<div class="empty">Item not found.</div>'; return; }
+          currentItem = item;
+          document.title = item.title + ' — DIU Student Mart';
+          const user = getUser();
+          const wished = user && user.wishlist && user.wishlist.includes(parseInt(id));
+          document.getElementById('detail-content').innerHTML = `
+            <div class="detail-card">
+              <div class="detail-img">${ICONS[item.category] || '📦'}</div>
+              <div class="detail-info">
+                <div class="detail-title">${item.title}</div>
+                <div class="detail-price">৳ ${parseInt(item.price).toLocaleString()}</div>
+                <div class="detail-tags">
+                  ${badgeHtml(item.condition_type, item.status)}
+                  <span class="badge" style="background:#f5f7f6;color:#555">${item.category}</span>
+                  <span class="badge" style="background:#f5f7f6;color:#555">${item.department}</span>
+                </div>
+                <div class="detail-desc">${item.description}</div>
+                <div class="seller-box">
+                  <div class="seller-avatar">${item.seller_name ? item.seller_name.split(' ').map(w=>w[0]).join('') : 'U'}</div>
+                  <div>
+                    <div class="seller-name">${item.seller_name || 'Unknown'}</div>
+                    <div class="seller-meta">${item.seller_dept || ''} · ${item.seller_phone || ''}</div>
+                  </div>
+                </div>
+                <button class="btn-full" onclick="openInquiry()">Contact Seller</button>
+                <button class="btn-outline" id="wish-btn" onclick="toggleWish(${item.id})">${wished ? '★ Remove from Wishlist' : '☆ Add to Wishlist'}</button>
+              </div>
+            </div>`;
+        });
+    };
+ 
+    function openInquiry() {
+      const user = getUser();
+      if (!user) { showToast('Please login to contact seller'); setTimeout(() => window.location.href = 'auth.html', 1200); return; }
+      document.getElementById('modal-seller-info').textContent = 'Sending to: ' + currentItem.seller_name + ' · ' + currentItem.seller_phone;
+      document.getElementById('inq-phone').value = user.phone || '';
+      document.getElementById('inquiry-modal').classList.add('show');
+    }
+ 
+    function closeModal() { document.getElementById('inquiry-modal').classList.remove('show'); }
+ 
+    function sendInquiry() {
+      const user = getUser();
+      const msg = document.getElementById('inq-msg').value.trim();
+      const phone = document.getElementById('inq-phone').value.trim();
+      if (!msg) { showToast('Please write a message'); return; }
+      fetch('api/inquiries.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ listing_id: currentItem.id, buyer_id: user.id, message: msg, phone })
+      })
+      .then(res => res.json())
+      .then(data => {
+        closeModal();
+        showToast('Inquiry sent to ' + currentItem.seller_name + '!');
+      });
+    }
+ 
+    function toggleWish(id) {
+      const user = getUser();
+      if (!user) { showToast('Please login to use wishlist'); return; }
+      fetch('api/auth.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'toggleWish', user_id: user.id, listing_id: id })
+      })
+      .then(res => res.json())
+      .then(data => {
+        showToast(data.added ? 'Added to wishlist!' : 'Removed from wishlist');
+        const btn = document.getElementById('wish-btn');
+        btn.textContent = data.added ? '★ Remove from Wishlist' : '☆ Add to Wishlist';
+      });
+    }
+  </script>
+</body>
+</html>
