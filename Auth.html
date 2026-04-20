@@ -86,3 +86,67 @@
     </div>
  
   </section>
+  
+  <script src="app.js"></script>
+  <script>
+    function toggleForm(type) {
+      document.getElementById('login-card').style.display = type === 'login' ? 'block' : 'none';
+      document.getElementById('register-card').style.display = type === 'register' ? 'block' : 'none';
+    }
+ 
+    function doLogin() {
+      const email = document.getElementById('login-email').value.trim();
+      const pass = document.getElementById('login-pass').value;
+      const errEl = document.getElementById('login-error');
+      const sucEl = document.getElementById('login-success');
+      errEl.style.display = 'none';
+      if (!email || !pass) { errEl.textContent = 'Please fill all fields'; errEl.style.display = 'block'; return; }
+      fetch('api/auth.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'login', email, password: pass })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          localStorage.setItem('user', JSON.stringify(data.user));
+          sucEl.textContent = 'Login successful! Redirecting...';
+          sucEl.style.display = 'block';
+          setTimeout(() => window.location.href = 'index.html', 1000);
+        } else {
+          errEl.textContent = data.message || 'Invalid credentials';
+          errEl.style.display = 'block';
+        }
+      });
+    }
+ 
+    function doRegister() {
+      const name = document.getElementById('reg-name').value.trim();
+      const sid = document.getElementById('reg-id').value.trim();
+      const email = document.getElementById('reg-email').value.trim();
+      const dept = document.getElementById('reg-dept').value;
+      const phone = document.getElementById('reg-phone').value.trim();
+      const pass = document.getElementById('reg-pass').value;
+      const errEl = document.getElementById('reg-error');
+      errEl.style.display = 'none';
+      if (!name || !sid || !email || !pass) { errEl.textContent = 'Please fill all required fields'; errEl.style.display = 'block'; return; }
+      if (pass.length < 6) { errEl.textContent = 'Password must be at least 6 characters'; errEl.style.display = 'block'; return; }
+      fetch('api/auth.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'register', name, student_id: sid, email, department: dept, phone, password: pass })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          localStorage.setItem('user', JSON.stringify(data.user));
+          window.location.href = 'index.html';
+        } else {
+          errEl.textContent = data.message || 'Registration failed';
+          errEl.style.display = 'block';
+        }
+      });
+    }
+  </script>
+</body>
+</html>
