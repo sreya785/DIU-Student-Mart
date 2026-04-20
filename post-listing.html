@@ -88,3 +88,58 @@
     <div class="footer-logo">DIU Student Mart</div>
     <div class="footer-links"><a href="#">About</a></div>
   </footer>
+
+  <script src="app.js"></script>
+  <script>
+    window.onload = function() {
+      checkLoginStatus();
+      const user = getUser();
+      if (!user) { alert('Please login to post a listing!'); window.location.href = 'auth.html'; }
+    };
+ 
+    function doPost() {
+      const user = getUser();
+      if (!user) { window.location.href = 'auth.html'; return; }
+      const title = document.getElementById('p-title').value.trim();
+      const price = document.getElementById('p-price').value;
+      const desc = document.getElementById('p-desc').value.trim();
+      const errEl = document.getElementById('post-error');
+      const sucEl = document.getElementById('post-success');
+      errEl.style.display = 'none';
+      if (!title || !price || !desc) {
+        errEl.textContent = 'Please fill all required fields!';
+        errEl.style.display = 'block'; return;
+      }
+      fetch('api/listings.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'add',
+          title,
+          category: document.getElementById('p-cat').value,
+          price,
+          condition_type: document.getElementById('p-cond').value,
+          department: document.getElementById('p-dept').value,
+          description: desc,
+          status: document.getElementById('p-status').value,
+          seller_id: user.id
+        })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          sucEl.textContent = 'Listing posted successfully!';
+          sucEl.style.display = 'block';
+          document.getElementById('p-title').value = '';
+          document.getElementById('p-price').value = '';
+          document.getElementById('p-desc').value = '';
+          setTimeout(() => window.location.href = 'listings.html', 1500);
+        } else {
+          errEl.textContent = data.message || 'Failed to post listing';
+          errEl.style.display = 'block';
+        }
+      });
+    }
+  </script>
+</body>
+</html>
