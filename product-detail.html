@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Product Detail — DIU Student Mart</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+ 
+  <nav class="navbar">
+    <div class="nav-logo" onclick="window.location.href='index.html'">
+      <div class="logo-box">SM</div>
+      DIU Student Mart
+    </div>
+    <div class="nav-links">
+      <a href="index.html">Home</a>
+      <a href="listings.html">Browse</a>
+      <a href="post-listing.html" class="btn-post">+ Post Item</a>
+      <a href="profile.html" id="nav-profile" style="display:none">Profile</a>
+      <a href="admin.html" id="nav-admin" style="display:none">Admin</a>
+      <a href="auth.html" id="nav-login">Login</a>
+      <a href="#" id="nav-logout" style="display:none" onclick="logout()">Logout</a>
+    </div>
+  </nav>
+ 
+  <div class="container">
+    <div class="detail-wrap">
+      <button class="back-btn" onclick="history.back()">← Back to listings</button>
+      <div id="detail-content"><div class="loading">Loading...</div></div>
+    </div>
+  </div>
+ 
+  <!-- INQUIRY MODAL -->
+  <div class="modal-overlay" id="inquiry-modal">
+    <div class="modal-box">
+      <div class="modal-header">
+        <div class="modal-title">Contact Seller</div>
+        <button class="modal-close" onclick="closeModal()">✕</button>
+      </div>
+      <div id="modal-seller-info" style="font-size:13px;color:#777;margin-bottom:14px"></div>
+      <div class="form-group">
+        <label>Your Message</label>
+        <textarea id="inq-msg" placeholder="Hi, I am interested in this item. Is it still available?"></textarea>
+      </div>
+      <div class="form-group">
+        <label>Your Contact Number</label>
+        <input type="text" id="inq-phone" placeholder="01XXXXXXXXX">
+      </div>
+      <button class="btn-full" onclick="sendInquiry()">Send Inquiry</button>
+    </div>
+  </div>
+ 
+  <!-- TOAST -->
+  <div class="toast" id="toast"></div>
+ 
+  <footer class="footer">
+    <div class="footer-logo">DIU Student Mart</div>
+    <div class="footer-links"><a href="#">About</a></div>
+  </footer>
+ 
