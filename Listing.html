@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Browse Listings — DIU Student Mart</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+ 
+  <nav class="navbar">
+    <div class="nav-logo" onclick="window.location.href='index.html'">
+      <div class="logo-box">SM</div>
+      DIU Student Mart
+    </div>
+    <div class="nav-links">
+      <a href="index.html">Home</a>
+      <a href="listings.html" class="active">Browse</a>
+      <a href="post-listing.html" class="btn-post">+ Post Item</a>
+      <a href="profile.html" id="nav-profile" style="display:none">Profile</a>
+      <a href="admin.html" id="nav-admin" style="display:none">Admin</a>
+      <a href="auth.html" id="nav-login">Login</a>
+      <a href="#" id="nav-logout" style="display:none" onclick="logout()">Logout</a>
+    </div>
+  </nav>
+ 
+  <div class="container">
+    <div class="section-header">
+      <h2>Browse All Listings</h2>
+    </div>
+ 
+    <!-- FILTERS -->
+    <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap">
+      <input type="text" id="f-search" placeholder="Search..." style="flex:1;min-width:140px;padding:8px 12px;border:1px solid #ddd;border-radius:8px;font-size:13px">
+      <select id="f-cat" style="padding:8px 12px;border:1px solid #ddd;border-radius:8px;font-size:13px">
+        <option value="">All Categories</option>
+        <option>Books & Notes</option>
+        <option>Electronics & Gadgets</option>
+        <option>Project Files / Source Code</option>
+        <option>Games & Accessories</option>
+        <option>Miscellaneous</option>
+      </select>
+      <select id="f-cond" style="padding:8px 12px;border:1px solid #ddd;border-radius:8px;font-size:13px">
+        <option value="">All Conditions</option>
+        <option>New</option>
+        <option>Used</option>
+        <option>Digital</option>
+      </select>
+      <select id="f-sort" style="padding:8px 12px;border:1px solid #ddd;border-radius:8px;font-size:13px">
+        <option value="newest">Newest First</option>
+        <option value="low">Price: Low to High</option>
+        <option value="high">Price: High to Low</option>
+      </select>
+      <button onclick="applyFilters()" style="background:#1D9E75;color:#fff;border:none;border-radius:8px;padding:8px 18px;font-size:13px;font-weight:600;cursor:pointer">Filter</button>
+    </div>
+ 
+    <!-- CATEGORY PILLS -->
+    <div class="cat-pills" style="margin-bottom:14px">
+      <span class="cat-pill active" onclick="setCat('',this)">All</span>
+      <span class="cat-pill" onclick="setCat('Books & Notes',this)">Books & Notes</span>
+      <span class="cat-pill" onclick="setCat('Electronics & Gadgets',this)">Electronics & Gadgets</span>
+      <span class="cat-pill" onclick="setCat('Project Files / Source Code',this)">Project Files / Source Code</span>
+      <span class="cat-pill" onclick="setCat('Games & Accessories',this)">Games & Accessories</span>
+      <span class="cat-pill" onclick="setCat('Miscellaneous',this)">Miscellaneous</span>
+    </div>
+ 
+    <div class="grid" id="listings-grid">
+      <div class="loading">Loading listings...</div>
+    </div>
+    <div class="empty" id="list-empty" style="display:none">No listings found. Try different filters.</div>
+  </div>
+ 
+  <footer class="footer">
+    <div class="footer-logo">DIU Student Mart</div>
+    <div class="footer-links">
+      <a href="#">About</a>
+      <a href="admin.html">Admin Panel</a>
+    </div>
+  </footer>
