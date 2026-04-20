@@ -97,3 +97,50 @@
  
   <script src="app.js"></script>
   <script>
+ // Load listings on page load
+    window.onload = function() {
+      checkLoginStatus();
+      loadHomeListings();
+      loadStats();
+    };
+ 
+    function loadHomeListings(cat = '', search = '') {
+      fetch(`api/listings.php?action=getAll&cat=${cat}&search=${search}`)
+        .then(res => res.json())
+        .then(data => {
+          const grid = document.getElementById('home-grid');
+          if (!data.length) {
+            grid.innerHTML = '<div class="empty">No listings found.</div>';
+            return;
+          }
+          grid.innerHTML = data.slice(0, 8).map(cardHtml).join('');
+        })
+        .catch(() => {
+          document.getElementById('home-grid').innerHTML = '<div class="empty">Could not load listings. Make sure XAMPP is running.</div>';
+        });
+    }
+ 
+    function loadStats() {
+      fetch('api/listings.php?action=stats')
+        .then(res => res.json())
+        .then(data => {
+          document.getElementById('stat-listings').textContent = data.listings || 0;
+          document.getElementById('stat-users').textContent = data.users || 0;
+          document.getElementById('stat-sold').textContent = data.sold || 0;
+        });
+    }
+ 
+    function filterCat(cat, el) {
+      document.querySelectorAll('.cat-pill').forEach(p => p.classList.remove('active'));
+      el.classList.add('active');
+      loadHomeListings(cat);
+    }
+ 
+    function searchItems() {
+      const q = document.getElementById('search-input').value;
+      const cat = document.getElementById('search-cat').value;
+      window.location.href = `listings.html?search=${q}&cat=${cat}`;
+    }
+  </script>
+</body>
+</html>
