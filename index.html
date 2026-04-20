@@ -1,11 +1,56 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DIU Student Mart</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    
-</body>
-</html>
+ 
+  <!-- NAVBAR -->
+  <nav class="navbar">
+    <div class="nav-logo" onclick="window.location.href='index.html'">
+      <div class="logo-box">SM</div>
+      DIU Student Mart
+    </div>
+    <div class="nav-links">
+      <a href="index.html" class="active">Home</a>
+      <a href="listings.html">Browse</a>
+      <a href="post-listing.html" class="btn-post">+ Post Item</a>
+      <a href="profile.html" id="nav-profile" style="display:none">Profile</a>
+      <a href="admin.html" id="nav-admin" style="display:none">Admin</a>
+      <a href="auth.html" id="nav-login">Login</a>
+      <a href="#" id="nav-logout" style="display:none" onclick="logout()">Logout</a>
+    </div>
+  </nav>
+ 
+  <!-- HERO -->
+  <section class="hero">
+    <h1>Buy, Sell & Exchange — Within DIU</h1>
+    <p>The trusted marketplace exclusively for Daffodil International University students</p>
+    <div class="search-bar">
+      <input type="text" id="search-input" placeholder="Search books, electronics, source code...">
+      <select id="search-cat">
+        <option value="">All Categories</option>
+        <option>Books & Notes</option>
+        <option>Electronics & Gadgets</option>
+        <option>Project Files / Source Code</option>
+        <option>Games & Accessories</option>
+        <option>Miscellaneous</option>
+      </select>
+      <button onclick="searchItems()">Search</button>
+    </div>
+  </section>
+ 
+  <!-- CATEGORIES -->
+  <section class="container">
+    <div class="cat-pills" id="cat-pills">
+      <span class="cat-pill active" onclick="filterCat('', this)">All</span>
+      <span class="cat-pill" onclick="filterCat('Books & Notes', this)">Books & Notes</span>
+      <span class="cat-pill" onclick="filterCat('Electronics & Gadgets', this)">Electronics & Gadgets</span>
+      <span class="cat-pill" onclick="filterCat('Project Files / Source Code', this)">Project Files / Source Code</span>
+      <span class="cat-pill" onclick="filterCat('Games & Accessories', this)">Games & Accessories</span>
+      <span class="cat-pill" onclick="filterCat('Miscellaneous', this)">Miscellaneous</span>
+    </div>
+  </section>
