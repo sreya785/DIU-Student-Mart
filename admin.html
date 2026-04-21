@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Panel — DIU Student Mart</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+ 
+  <nav class="navbar">
+    <div class="nav-logo" onclick="window.location.href='index.html'">
+      <div class="logo-box">SM</div>
+      DIU Student Mart
+    </div>
+    <div class="nav-links">
+      <a href="index.html">Home</a>
+      <a href="listings.html">Browse</a>
+      <a href="profile.html" id="nav-profile" style="display:none">Profile</a>
+      <a href="admin.html" class="active" id="nav-admin" style="display:none">Admin</a>
+      <a href="auth.html" id="nav-login">Login</a>
+      <a href="#" id="nav-logout" style="display:none" onclick="logout()">Logout</a>
+    </div>
+  </nav>
+ 
+  <div class="container" id="admin-wrap">
+    <div class="loading">Checking access...</div>
+  </div>
+ 
+  <div class="toast" id="toast"></div>
+ 
+  <footer class="footer">
+    <div class="footer-logo">DIU Student Mart</div>
+    <div class="footer-links"><a href="#">About</a></div>
+  </footer>
+ 
+  <script src="app.js"></script>
+  <script>
+    window.onload = function() {
+      checkLoginStatus();
+      const user = getUser();
+      if (!user || user.role !== 'admin') {
+        document.getElementById('admin-wrap').innerHTML = '<div class="empty" style="padding:60px"><h2>Access Denied</h2><p style="margin-top:8px">Admin login required.</p><a href="auth.html" style="color:#1D9E75">Login here</a></div>';
+        return;
+      }
+      loadAdminPanel();
+    };
+ 
+    function loadAdminPanel() {
+      fetch('api/admin.php?action=stats')
+        .then(r => r.json())
+        .then(stats => {
+          document.getElementById('admin-wrap').innerHTML = `
+            <h2 style="font-size:18px;font-weight:700;margin-bottom:16px">Admin Panel</h2>
+            <div class="admin-stats">
+              <div class="stat-box"><div class="stat-num">${stats.total_listings}</div><div class="stat-label">Total Listings</div></div>
+              <div class="stat-box"><div class="stat-num">${stats.available}</div><div class="stat-label">Available</div></div>
+              <div class="stat-box"><div class="stat-num">${stats.total_users}</div><div class="stat-label">Users</div></div>
+              <div class="stat-box"><div class="stat-num">${stats.total_inquiries}</div><div class="stat-label">Inquiries</div></div>
+            </div>
+            <div class="tab-row">
+              <button class="tab-btn active" onclick="adminTab('listings', this)">All Listings</button>
+              <button class="tab-btn" onclick="adminTab('users', this)">All Users</button>
+              <button class="tab-btn" onclick="adminTab('inquiries', this)">All Inquiries</button>
+            </div>
+            <div id="admin-tab"></div>`;
+          adminTab('listings', document.querySelector('.tab-btn'));
+        });
+    }
+ 
+    function adminTab(tab, btn) {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const c = document.getElementById('admin-tab');
+      if (tab === 'listings') {
+        fetch('api/admin.php?action=listings')
+          .then(r => r.json())
+          .then(data => {
+            c.innerHTML = '<div style="overflow-x:auto"><table class="admin-table"><thead><tr><th>ID</th><th>Title</th><th>Category</th><th>Price</th><th>Status</th><th>Seller</th><th>Date</th><th>Action</th></tr></thead><tbody>' +
+              data.map(l => `<tr>
+                <td>${l.id}</td>
+                <td><a href="product-detail.html?id=${l.id}" style="color:#1D9E75">${l.title.substring(0,30)}</a></td>
+                <td>${l.category.split(' ')[0]}</td>
+                <td>৳${parseInt(l.price).toLocaleString()}</td>
+                <td><span class="badge ${l.status==='Available'?'badge-available':'badge-reserved'}">${l.status}</span></td>
+                <td>${l.seller_name || ''}</td>
+                <td>${new Date(l.created_at).toLocaleDateString()}</td>
+                <td><button class="btn-delete" onclick="adminDelete(${l.id})">Remove</button></td>
+              </tr>`).join('') + '</tbody></table></div>';
+          });
+      } else if (tab === 'users') {
+        fetch('api/admin.php?action=users')
+          .then(r => r.json())
+          .then(data => {
+            c.innerHTML = '<div style="overflow-x:auto"><table class="admin-table"><thead><tr><th>ID</th><th>Name</th><th>Student ID</th><th>Email</th><th>Dept</th><th>Role</th><th>Action</th></tr></thead><tbody>' +
+              data.map(u => `<tr>
+                <td>${u.id}</td>
+                <td>${u.name}</td>
+                <td>${u.student_id}</td>
+                <td>${u.email}</td>
+                <td>${u.department}</td>
+                <td><span class="badge ${u.role==='admin'?'badge-digital':'badge-available'}">${u.role}</span></td>
+                <td>${u.role !== 'admin' ? <button class="btn-ban" onclick="adminBan(${u.id},'${u.name}')">Ban</button> : '—'}</td>
+              </tr>`).join('') + '</tbody></table></div>';
+          });
+      } else if (tab === 'inquiries') {
+        fetch('api/admin.php?action=inquiries')
+          .then(r => r.json())
+          .then(data => {
+            c.innerHTML = '<div style="overflow-x:auto"><table class="admin-table"><thead><tr><th>ID</th><th>Listing</th><th>Buyer</th><th>Message</th><th>Date</th><th>Action</th></tr></thead><tbody>' +
+              data.map(i => `<tr>
+                <td>${i.id}</td>
+                <td>${i.listing_title ? i.listing_title.substring(0,25) : ''}</td>
+                <td>${i.buyer_name || ''}</td>
+                <td>${i.message.substring(0,40)}...</td>
+                <td>${new Date(i.created_at).toLocaleDateString()}</td>
+                <td><button class="btn-delete" onclick="adminDeleteInquiry(${i.id})">Remove</button></td>
+              </tr>`).join('') + '</tbody></table></div>';
+          });
+      }
+    }
+ 
+    function adminDelete(id) {
+      if (!confirm('Remove this listing?')) return;
+      fetch('api/admin.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'deleteListing', id })
+      }).then(r => r.json()).then(() => { showToast('Listing removed'); loadAdminPanel(); });
+    }
+ 
+    function adminBan(id, name) {
+      if (!confirm('Ban user ' + name + '?')) return;
+      fetch('api/admin.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'banUser', id })
+      }).then(r => r.json()).then(() => { showToast(name + ' has been banned'); loadAdminPanel(); });
+    }
+ 
+    function adminDeleteInquiry(id) {
+      fetch('api/admin.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'deleteInquiry', id })
+      }).then(r => r.json()).then(() => { showToast('Inquiry removed'); loadAdminPanel(); });
+    }
+  </script>
+</body>
+</html>
