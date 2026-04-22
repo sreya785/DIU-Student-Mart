@@ -41,10 +41,12 @@
     <div class="footer-logo">DIU Student Mart</div>
     <div class="footer-links"><a href="#">About</a></div>
   </footer>
-
+ 
   <script src="app.js"></script>
   <script>
+    const ICONS = {'Books & Notes':'📚','Electronics & Gadgets':'💻','Project Files / Source Code':'🗂️','Games & Accessories':'🎮','Miscellaneous':'📦'};
     let user = null;
+ 
     window.onload = function() {
       checkLoginStatus();
       user = getUser();
@@ -55,70 +57,94 @@
  
     function renderProfileHeader() {
       const initials = user.name.split(' ').map(w => w[0]).join('').toUpperCase();
-      document.getElementById('profile-header').innerHTML = `
-        <div class="profile-avatar">${initials}</div>
-        <div>
-          <div class="profile-name">${user.name}</div>
-          <div class="profile-meta">${user.student_id} · ${user.department}</div>
-          <div class="profile-meta">${user.email} · ${user.phone || 'No phone'}</div>
-          <div class="profile-meta" style="color:#BA7517;margin-top:4px">★★★★☆ 4.2 Seller Rating</div>
-        </div>`;
+      document.getElementById('profile-header').innerHTML =
+        '<div class="profile-avatar">' + initials + '</div>' +
+        '<div>' +
+          '<div class="profile-name">' + user.name + '</div>' +
+          '<div class="profile-meta">' + user.student_id + ' · ' + user.department + '</div>' +
+          '<div class="profile-meta">' + user.email + ' · ' + (user.phone || 'No phone') + '</div>' +
+          '<div class="profile-meta" style="color:#BA7517;margin-top:4px">★★★★☆ 4.2 Seller Rating</div>' +
+        '</div>';
     }
  
     function loadTab(tab, btn) {
-      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('active'); });
       btn.classList.add('active');
-      const c = document.getElementById('tab-content');
+      var c = document.getElementById('tab-content');
+ 
       if (tab === 'listings') {
-        fetch(`api/listings.php?action=getByUser&user_id=${user.id}`)
-          .then(r => r.json())
-          .then(data => {
-            if (!data.length) { c.innerHTML = '<div class="empty">No listings yet. <a href="post-listing.html" style="color:#1D9E75">Post your first item</a></div>'; return; }
-            c.innerHTML = '<div class="grid">' + data.map(item => `
-              <div class="card" onclick="window.location.href='product-detail.html?id=${item.id}'">
-                <div class="card-img">${ICONS[item.category] || '📦'}</div>
-                <div class="card-body">
-                  <div class="card-title">${item.title}</div>
-                  <div class="card-price">৳ ${parseInt(item.price).toLocaleString()}</div>
-                  <div class="card-footer">
-                    ${badgeHtml(item.condition_type, item.status)}
-                    <button onclick="event.stopPropagation();deleteListing(${item.id})" class="btn-delete">Delete</button>
-                  </div>
-                </div>
-              </div>`).join('') + '</div>';
+        c.innerHTML = '<div class="empty">Loading your listings...</div>';
+        fetch('api/listings.php?action=getByUser&user_id=' + user.id)
+          .then(function(r) { return r.json(); })
+          .then(function(data) {
+            if (!data.length) {
+              c.innerHTML = '<div class="empty">No listings yet. <a href="post-listing.html" style="color:#1D9E75">Post your first item</a></div>';
+              return;
+            }
+            var html = '<div class="grid">';
+            data.forEach(function(item) {
+              html += '<div class="card" onclick="window.location.href=\'product-detail.html?id=' + item.id + '\'">' +
+                '<div class="card-img">' + (ICONS[item.category] || '📦') + '</div>' +
+                '<div class="card-body">' +
+                  '<div class="card-title">' + item.title + '</div>' +
+                  '<div class="card-price">৳ ' + parseInt(item.price).toLocaleString() + '</div>' +
+                  '<div class="card-footer">' +
+                    badgeHtml(item.condition_type, item.status) +
+                    '<button onclick="event.stopPropagation();deleteListing(' + item.id + ')" class="btn-delete">Delete</button>' +
+                  '</div>' +
+                '</div>' +
+              '</div>';
+            });
+            html += '</div>';
+            c.innerHTML = html;
+          })
+          .catch(function() {
+            c.innerHTML = '<div class="empty">Could not load listings. Make sure XAMPP is running.</div>';
           });
+ 
       } else if (tab === 'wishlist') {
-        fetch(`api/auth.php?action=getWishlist&user_id=${user.id}`)
-          .then(r => r.json())
-          .then(data => {
+        c.innerHTML = '<div class="empty">Loading wishlist...</div>';
+        fetch('api/auth.php?action=getWishlist&user_id=' + user.id)
+          .then(function(r) { return r.json(); })
+          .then(function(data) {
             if (!data.length) { c.innerHTML = '<div class="empty">Your wishlist is empty.</div>'; return; }
             c.innerHTML = '<div class="grid">' + data.map(cardHtml).join('') + '</div>';
+          })
+          .catch(function() {
+            c.innerHTML = '<div class="empty">Could not load wishlist. Make sure XAMPP is running.</div>';
           });
+ 
       } else if (tab === 'inquiries') {
-        fetch(`api/inquiries.php?action=getByUser&user_id=${user.id}`)
-          .then(r => r.json())
-          .then(data => {
+        c.innerHTML = '<div class="empty">Loading inquiries...</div>';
+        fetch('api/inquiries.php?action=getByUser&user_id=' + user.id)
+          .then(function(r) { return r.json(); })
+          .then(function(data) {
             if (!data.length) { c.innerHTML = '<div class="empty">No inquiries sent yet.</div>'; return; }
-            c.innerHTML = data.map(i => `
-              <div style="background:#fff;border:1px solid #eee;border-radius:10px;padding:14px;margin-bottom:10px">
-                <div style="font-size:13px;font-weight:600">${i.listing_title}</div>
-                <div style="font-size:12px;color:#777;margin:4px 0">${i.message}</div>
-                <div style="font-size:11px;color:#aaa">${new Date(i.created_at).toLocaleDateString()}</div>
-              </div>`).join('');
+            var html = '';
+            data.forEach(function(i) {
+              html += '<div style="background:#fff;border:1px solid #eee;border-radius:10px;padding:14px;margin-bottom:10px">' +
+                '<div style="font-size:13px;font-weight:600">' + i.listing_title + '</div>' +
+                '<div style="font-size:12px;color:#777;margin:4px 0">' + i.message + '</div>' +
+                '<div style="font-size:11px;color:#aaa">' + new Date(i.created_at).toLocaleDateString() + '</div>' +
+              '</div>';
+            });
+            c.innerHTML = html;
+          })
+          .catch(function() {
+            c.innerHTML = '<div class="empty">Could not load inquiries. Make sure XAMPP is running.</div>';
           });
+ 
       } else if (tab === 'edit') {
-        c.innerHTML = `
-          <div class="post-card">
-            <div class="alert alert-success" id="edit-success" style="display:none">Profile updated!</div>
-            <div class="form-group"><label>Full Name</label><input type="text" id="edit-name" value="${user.name}"></div>
-            <div class="form-group"><label>Phone</label><input type="text" id="edit-phone" value="${user.phone || ''}"></div>
-            <div class="form-group"><label>Department</label>
-              <select id="edit-dept">
-                ${['CSE','EEE','BBA','CE','Textile','Law','English','Pharmacy'].map(d => `<option${d===user.department?' selected':''}>${d}</option>`).join('')}
-              </select>
-            </div>
-            <button class="btn-full" onclick="saveProfile()">Save Changes</button>
-          </div>`;
+        var deptOptions = ['CSE','EEE','BBA','CE','Textile','Law','English','Pharmacy']
+          .map(function(d) { return '<option' + (d === user.department ? ' selected' : '') + '>' + d + '</option>'; }).join('');
+        c.innerHTML =
+          '<div class="post-card">' +
+            '<div class="alert alert-success" id="edit-success" style="display:none">Profile updated!</div>' +
+            '<div class="form-group"><label>Full Name</label><input type="text" id="edit-name" value="' + user.name + '"></div>' +
+            '<div class="form-group"><label>Phone</label><input type="text" id="edit-phone" value="' + (user.phone || '') + '"></div>' +
+            '<div class="form-group"><label>Department</label><select id="edit-dept">' + deptOptions + '</select></div>' +
+            '<button class="btn-full" onclick="saveProfile()">Save Changes</button>' +
+          '</div>';
       }
     }
  
@@ -127,33 +153,40 @@
       fetch('api/listings.php', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'delete', id, user_id: user.id })
+        body: JSON.stringify({ action: 'delete', id: id, user_id: user.id })
       })
-      .then(r => r.json())
-      .then(() => { showToast('Listing deleted'); loadTab('listings', document.querySelector('.tab-btn.active')); });
+      .then(function(r) { return r.json(); })
+      .then(function() {
+        showToast('Listing deleted');
+        loadTab('listings', document.querySelector('.tab-btn.active'));
+      })
+      .catch(function() { showToast('Could not delete. Try again.'); });
     }
  
     function saveProfile() {
-      user.name = document.getElementById('edit-name').value;
-      user.phone = document.getElementById('edit-phone').value;
+      user.name       = document.getElementById('edit-name').value.trim();
+      user.phone      = document.getElementById('edit-phone').value.trim();
       user.department = document.getElementById('edit-dept').value;
+      if (!user.name) { showToast('Name cannot be empty!'); return; }
       fetch('api/auth.php', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ action: 'updateProfile', id: user.id, name: user.name, phone: user.phone, department: user.department })
       })
-      .then(r => r.json())
-      .then(data => {
+      .then(function(r) { return r.json(); })
+      .then(function(data) {
         if (data.success) {
           localStorage.setItem('user', JSON.stringify(user));
           document.getElementById('edit-success').style.display = 'block';
           renderProfileHeader();
+          checkLoginStatus();
           showToast('Profile updated!');
+        } else {
+          showToast('Update failed. Try again.');
         }
-      });
+      })
+      .catch(function() { showToast('Could not save. Make sure XAMPP is running.'); });
     }
- 
-    const ICONS = {'Books & Notes':'📚','Electronics & Gadgets':'💻','Project Files / Source Code':'🗂️','Games & Accessories':'🎮','Miscellaneous':'📦'};
   </script>
 </body>
 </html>

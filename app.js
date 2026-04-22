@@ -30,7 +30,7 @@ function checkLoginStatus() {
   if (user) {
     if (loginBtn) loginBtn.style.display = 'none';
     if (logoutBtn) logoutBtn.style.display = 'inline-block';
-    if (profileBtn) { profileBtn.style.display = 'inline-block'; profileBtn.textContent = user.name.split(' ')[0]; }
+    if (profileBtn) { profileBtn.style.display = 'inline-block'; profileBtn.href = 'profile.html'; profileBtn.textContent = user.name.split(' ')[0]; }
     if (adminBtn && user.role === 'admin') adminBtn.style.display = 'inline-block';
   } else {
     if (loginBtn) loginBtn.style.display = 'inline-block';
