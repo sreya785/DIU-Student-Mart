@@ -56,7 +56,6 @@
   </section>
   
   <!-- LISTINGS -->
-
   <section class="container">
     <div class="section-header">
       <h2>Recently Listed</h2>
@@ -97,7 +96,6 @@
  
   <script src="app.js"></script>
   <script>
- // Load listings on page load
     window.onload = function() {
       checkLoginStatus();
       loadHomeListings();
@@ -139,7 +137,8 @@
     function searchItems() {
       const q = document.getElementById('search-input').value;
       const cat = document.getElementById('search-cat').value;
-      window.location.href = `listings.html?search=${q}&cat=${cat}`;
+      // ✅ FIXED: encodeURIComponent added
+      window.location.href = `listings.html?search=${encodeURIComponent(q)}&cat=${encodeURIComponent(cat)}`;
     }
   </script>
 </body>
