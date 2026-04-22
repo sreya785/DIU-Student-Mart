@@ -16,7 +16,7 @@
     </div>
     <div class="nav-links">
       <a href="index.html" class="active">Home</a>
-      <a href="listings.html">Browse</a>
+      <a href="Listing.html">Browse</a>
       <a href="post-listing.html" class="btn-post">+ Post Item</a>
       <a href="profile.html" id="nav-profile" style="display:none">Profile</a>
       <a href="admin.html" id="nav-admin" style="display:none">Admin</a>
@@ -59,7 +59,7 @@
   <section class="container">
     <div class="section-header">
       <h2>Recently Listed</h2>
-      <a href="listings.html">View All</a>
+      <a href="Listing.html">View All</a>
     </div>
     <div class="grid" id="home-grid">
       <div class="loading">Loading listings...</div>
@@ -137,8 +137,7 @@
     function searchItems() {
       const q = document.getElementById('search-input').value;
       const cat = document.getElementById('search-cat').value;
-      // ✅ FIXED: encodeURIComponent added
-      window.location.href = `listings.html?search=${encodeURIComponent(q)}&cat=${encodeURIComponent(cat)}`;
+      window.location.href = `Listing.html?search=${encodeURIComponent(q)}&cat=${encodeURIComponent(cat)}`;
     }
   </script>
 </body>

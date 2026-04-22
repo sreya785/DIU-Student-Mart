@@ -100,7 +100,6 @@
       const cat = document.getElementById('f-cat').value;
       const cond = document.getElementById('f-cond').value;
       const sort = document.getElementById('f-sort').value;
-      // ✅ FIXED: encodeURIComponent added
       fetch(`api/listings.php?action=getAll&search=${encodeURIComponent(search)}&cat=${encodeURIComponent(cat)}&cond=${encodeURIComponent(cond)}&sort=${encodeURIComponent(sort)}`)
         .then(res => res.json())
         .then(data => {

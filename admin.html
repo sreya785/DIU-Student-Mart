@@ -15,7 +15,7 @@
     </div>
     <div class="nav-links">
       <a href="index.html">Home</a>
-      <a href="listings.html">Browse</a>
+      <a href="Listing.html">Browse</a>
       <a href="profile.html" id="nav-profile" style="display:none">Profile</a>
       <a href="admin.html" class="active" id="nav-admin" style="display:none">Admin</a>
       <a href="auth.html" id="nav-login">Login</a>
@@ -100,7 +100,7 @@
                 <td>${u.email}</td>
                 <td>${u.department}</td>
                 <td><span class="badge ${u.role==='admin'?'badge-digital':'badge-available'}">${u.role}</span></td>
-                <td>${u.role !== 'admin' ? <button class="btn-ban" onclick="adminBan(${u.id},'${u.name}')">Ban</button> : '—'}</td>
+                <td>${u.role !== 'admin' ? `<button class="btn-ban" onclick="adminBan(${u.id},'${u.name}')">Ban</button>` : '—'}</td>
               </tr>`).join('') + '</tbody></table></div>';
           });
       } else if (tab === 'inquiries') {
