@@ -103,7 +103,7 @@
     };
  
     function loadHomeListings(cat = '', search = '') {
-      fetch(`api/listings.php?action=getAll&cat=${cat}&search=${search}`)
+      fetch(`api/listings.php?action=getAll&cat=${encodeURIComponent(cat)}&search=${encodeURIComponent(search)}`)
         .then(res => res.json())
         .then(data => {
           const grid = document.getElementById('home-grid');
