@@ -3,10 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Post a Listing — DIU Student Mart</title>
+  <title>Browse Listings — DIU Student Mart</title>
   <link rel="stylesheet" href="style.css">
 </head>
-
 <body>
  
   <nav class="navbar">
@@ -16,8 +15,8 @@
     </div>
     <div class="nav-links">
       <a href="index.html">Home</a>
-      <a href="listings.html">Browse</a>
-      <a href="post-listing.html" class="btn-post active">+ Post Item</a>
+      <a href="Listing.html" class="active">Browse</a>
+      <a href="post-listing.html" class="btn-post">+ Post Item</a>
       <a href="profile.html" id="nav-profile" style="display:none">Profile</a>
       <a href="admin.html" id="nav-admin" style="display:none">Admin</a>
       <a href="auth.html" id="nav-login">Login</a>
@@ -26,140 +25,96 @@
   </nav>
  
   <div class="container">
-    <div class="post-card">
-      <h2 style="font-size:18px;font-weight:700;margin-bottom:4px">Post a New Listing</h2>
-      <p style="font-size:13px;color:#777;margin-bottom:20px">Fill in the details to list your item</p>
- 
-      <div class="alert alert-error" id="post-error" style="display:none"></div>
-      <div class="alert alert-success" id="post-success" style="display:none"></div>
- 
-      <div class="form-group">
-        <label>Item Title *</label>
-        <input type="text" id="p-title" placeholder="e.g. Data Structures textbook by Goodrich">
-      </div>
-      <div class="form-group">
-        <label>Category *</label>
-        <select id="p-cat">
-          <option>Books & Notes</option>
-          <option>Electronics & Gadgets</option>
-          <option>Project Files / Source Code</option>
-          <option>Games & Accessories</option>
-          <option>Miscellaneous</option>
-        </select>
-      </div>
-      <div class="two-col">
-        <div class="form-group">
-          <label>Price (৳) *</label>
-          <input type="number" id="p-price" placeholder="0" min="0">
-        </div>
-        <div class="form-group">
-          <label>Condition *</label>
-          <select id="p-cond">
-            <option>New</option>
-            <option>Used</option>
-            <option>Digital</option>
-          </select>
-        </div>
-      </div>
-      <div class="form-group">
-        <label>Department</label>
-        <select id="p-dept">
-          <option>CSE</option><option>EEE</option><option>BBA</option>
-          <option>CE</option><option>Textile</option><option>Law</option>
-          <option>English</option><option>Pharmacy</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label>Description *</label>
-        <textarea id="p-desc" placeholder="Describe your item — condition, edition, what's included, etc."></textarea>
-      </div>
-      <div class="form-group">
-        <label>Status</label>
-        <select id="p-status">
-          <option>Available</option>
-          <option>Reserved</option>
-        </select>
-      </div>
-      <button class="btn-full" onclick="doPost()">Post Listing</button>
+    <div class="section-header">
+      <h2>Browse All Listings</h2>
     </div>
+ 
+    <!-- FILTERS -->
+    <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap">
+      <input type="text" id="f-search" placeholder="Search..." style="flex:1;min-width:140px;padding:8px 12px;border:1px solid #ddd;border-radius:8px;font-size:13px">
+      <select id="f-cat" style="padding:8px 12px;border:1px solid #ddd;border-radius:8px;font-size:13px">
+        <option value="">All Categories</option>
+        <option>Books & Notes</option>
+        <option>Electronics & Gadgets</option>
+        <option>Project Files / Source Code</option>
+        <option>Games & Accessories</option>
+        <option>Miscellaneous</option>
+      </select>
+      <select id="f-cond" style="padding:8px 12px;border:1px solid #ddd;border-radius:8px;font-size:13px">
+        <option value="">All Conditions</option>
+        <option>New</option>
+        <option>Used</option>
+        <option>Digital</option>
+      </select>
+      <select id="f-sort" style="padding:8px 12px;border:1px solid #ddd;border-radius:8px;font-size:13px">
+        <option value="newest">Newest First</option>
+        <option value="low">Price: Low to High</option>
+        <option value="high">Price: High to Low</option>
+      </select>
+      <button onclick="applyFilters()" style="background:#1D9E75;color:#fff;border:none;border-radius:8px;padding:8px 18px;font-size:13px;font-weight:600;cursor:pointer">Filter</button>
+    </div>
+ 
+    <!-- CATEGORY PILLS -->
+    <div class="cat-pills" style="margin-bottom:14px">
+      <span class="cat-pill active" onclick="setCat('',this)">All</span>
+      <span class="cat-pill" onclick="setCat('Books & Notes',this)">Books & Notes</span>
+      <span class="cat-pill" onclick="setCat('Electronics & Gadgets',this)">Electronics & Gadgets</span>
+      <span class="cat-pill" onclick="setCat('Project Files / Source Code',this)">Project Files / Source Code</span>
+      <span class="cat-pill" onclick="setCat('Games & Accessories',this)">Games & Accessories</span>
+      <span class="cat-pill" onclick="setCat('Miscellaneous',this)">Miscellaneous</span>
+    </div>
+ 
+    <div class="grid" id="listings-grid">
+      <div class="loading">Loading listings...</div>
+    </div>
+    <div class="empty" id="list-empty" style="display:none">No listings found. Try different filters.</div>
   </div>
  
   <footer class="footer">
     <div class="footer-logo">DIU Student Mart</div>
-    <div class="footer-links"><a href="#">About</a></div>
+    <div class="footer-links">
+      <a href="#">About</a>
+      <a href="admin.html">Admin Panel</a>
+    </div>
   </footer>
 
   <script src="app.js"></script>
   <script>
     window.onload = function() {
       checkLoginStatus();
-      const user = getUser();
-      if (!user) { alert('Please login to post a listing!'); window.location.href = 'auth.html'; }
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('search')) document.getElementById('f-search').value = params.get('search');
+      if (params.get('cat')) document.getElementById('f-cat').value = params.get('cat');
+      applyFilters();
     };
  
-    function doPost() {
-    const user = getUser();
-    if (!user) { 
-        window.location.href = 'auth.html'; 
-        return; 
+    function setCat(cat, el) {
+      document.querySelectorAll('.cat-pill').forEach(p => p.classList.remove('active'));
+      el.classList.add('active');
+      document.getElementById('f-cat').value = cat;
+      applyFilters();
     }
  
-    const title = document.getElementById('p-title').value.trim();
-    const price = document.getElementById('p-price').value;
-    const desc  = document.getElementById('p-desc').value.trim();
-    const errEl = document.getElementById('post-error');
-    const sucEl = document.getElementById('post-success');
- 
-    errEl.style.display = 'none';
-    sucEl.style.display = 'none';
- 
-    // Check empty fields
-    if (!title) { errEl.textContent = 'Please enter item title!'; errEl.style.display = 'block'; return; }
-    if (!price || price <= 0) { errEl.textContent = 'Please enter a valid price!'; errEl.style.display = 'block'; return; }
-    if (!desc)  { errEl.textContent = 'Please enter description!'; errEl.style.display = 'block'; return; }
- 
-    const postData = {
-        action:         'add',
-        title:          title,
-        category:       document.getElementById('p-cat').value,
-        price:          price,
-        condition_type: document.getElementById('p-cond').value,
-        department:     document.getElementById('p-dept').value,
-        description:    desc,
-        status:         document.getElementById('p-status').value,
-        seller_id:      user.id
-    };
- 
-    fetch('api/listings.php', {
-        method:  'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body:    JSON.stringify(postData)
-    })
-    .then(res => res.json())
-    .then(data => {
-        if (data.success) {
-            sucEl.textContent = 'Listing posted successfully! Redirecting...';
-            sucEl.style.display = 'block';
- 
-            // Clear the form for next posting
-            document.getElementById('p-title').value = '';
-            document.getElementById('p-price').value = '';
-            document.getElementById('p-desc').value  = '';
- 
-            setTimeout(() => { 
-                window.location.href = 'listings.html'; 
-            }, 1500);
-        } else {
-            errEl.textContent = data.message || 'Failed to post. Try again.';
-            errEl.style.display = 'block';
-        }
-    })
-    .catch(err => {
-        errEl.textContent = 'Connection error! Make sure XAMPP is running.';
-        errEl.style.display = 'block';
-        console.error(err);
-    });
-}
+    function applyFilters() {
+      const search = document.getElementById('f-search').value;
+      const cat = document.getElementById('f-cat').value;
+      const cond = document.getElementById('f-cond').value;
+      const sort = document.getElementById('f-sort').value;
+      // ✅ FIXED: encodeURIComponent added
+      fetch(`api/listings.php?action=getAll&search=${encodeURIComponent(search)}&cat=${encodeURIComponent(cat)}&cond=${encodeURIComponent(cond)}&sort=${encodeURIComponent(sort)}`)
+        .then(res => res.json())
+        .then(data => {
+          const grid = document.getElementById('listings-grid');
+          const empty = document.getElementById('list-empty');
+          if (!data.length) {
+            grid.innerHTML = '';
+            empty.style.display = 'block';
+          } else {
+            empty.style.display = 'none';
+            grid.innerHTML = data.map(cardHtml).join('');
+          }
+        });
+    }
   </script>
 </body>
 </html>

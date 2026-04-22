@@ -15,7 +15,7 @@
     </div>
     <div class="nav-links">
       <a href="index.html">Home</a>
-      <a href="listings.html" class="active">Browse</a>
+      <a href="Listing.html" class="active">Browse</a>
       <a href="post-listing.html" class="btn-post">+ Post Item</a>
       <a href="profile.html" id="nav-profile" style="display:none">Profile</a>
       <a href="admin.html" id="nav-admin" style="display:none">Admin</a>
@@ -100,7 +100,8 @@
       const cat = document.getElementById('f-cat').value;
       const cond = document.getElementById('f-cond').value;
       const sort = document.getElementById('f-sort').value;
-      fetch(`api/listings.php?action=getAll&search=${search}&cat=${cat}&cond=${cond}&sort=${sort}`)
+      // ✅ FIXED: encodeURIComponent added
+      fetch(`api/listings.php?action=getAll&search=${encodeURIComponent(search)}&cat=${encodeURIComponent(cat)}&cond=${encodeURIComponent(cond)}&sort=${encodeURIComponent(sort)}`)
         .then(res => res.json())
         .then(data => {
           const grid = document.getElementById('listings-grid');
