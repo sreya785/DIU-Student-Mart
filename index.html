@@ -15,7 +15,7 @@
     </div>
     <div class="nav-links">
       <a href="index.html" class="active">Home</a>
-      <a href="listings.html">Browse</a>
+      <a href="Listing.html">Browse</a>
       <a href="post-listing.html" class="btn-post">+ Post Item</a>
       <a href="profile.html" id="nav-profile" style="display:none">Profile</a>
       <a href="admin.html" id="nav-admin" style="display:none">Admin</a>
@@ -55,7 +55,7 @@
   <section class="container">
     <div class="section-header">
       <h2>Recently Listed</h2>
-      <a href="listings.html">View All</a>
+      <a href="Listing.html">View All</a>
     </div>
     <div class="grid" id="home-grid">
       <div class="loading">Loading listings...</div>
@@ -99,7 +99,7 @@
     };
 
     function loadHomeListings(cat, search) {
-      fetch('/diu-student-mart/api/listings.php?action=getAll&cat=' + cat + '&search=' + search)
+      fetch('/diu-student-mart/api/listings.php?action=getAll&cat=' + encodeURIComponent(cat) + '&search=' + encodeURIComponent(search))
         .then(function(res) { return res.json(); })
         .then(function(data) {
           const grid = document.getElementById('home-grid');
@@ -127,13 +127,17 @@
     function filterCat(cat, el) {
       document.querySelectorAll('.cat-pill').forEach(function(p) { p.classList.remove('active'); });
       el.classList.add('active');
-      loadHomeListings(cat, '');
+      if (cat === '') {
+        loadHomeListings('', '');
+      } else {
+        window.location.href = 'Listing.html?cat=' + encodeURIComponent(cat);
+      }
     }
 
     function searchItems() {
-      const q   = document.getElementById('search-input').value;
+      const q   = document.getElementById('search-input').value.trim();
       const cat = document.getElementById('search-cat').value;
-      window.location.href = 'listings.html?search=' + q + '&cat=' + cat;
+      window.location.href = 'Listing.html?search=' + encodeURIComponent(q) + '&cat=' + encodeURIComponent(cat);
     }
   </script>
 </body>

@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -16,7 +15,7 @@
     </div>
     <div class="nav-links">
       <a href="index.html">Home</a>
-      <a href="listings.html" class="active">Browse</a>
+      <a href="Listing.html" class="active">Browse</a>
       <a href="post-listing.html" class="btn-post">+ Post Item</a>
       <a href="profile.html" id="nav-profile" style="display:none">Profile</a>
       <a href="admin.html" id="nav-admin" style="display:none">Admin</a>
@@ -55,12 +54,12 @@
     </div>
 
     <div class="cat-pills" style="margin-bottom:14px">
-      <span class="cat-pill active" onclick="setCat('',this)">All</span>
-      <span class="cat-pill" onclick="setCat('Books & Notes',this)">Books & Notes</span>
-      <span class="cat-pill" onclick="setCat('Electronics & Gadgets',this)">Electronics & Gadgets</span>
-      <span class="cat-pill" onclick="setCat('Project Files / Source Code',this)">Project Files / Source Code</span>
-      <span class="cat-pill" onclick="setCat('Games & Accessories',this)">Games & Accessories</span>
-      <span class="cat-pill" onclick="setCat('Miscellaneous',this)">Miscellaneous</span>
+      <span class="cat-pill active" data-cat="" onclick="setCat('',this)">All</span>
+      <span class="cat-pill" data-cat="Books & Notes" onclick="setCat('Books & Notes',this)">Books & Notes</span>
+      <span class="cat-pill" data-cat="Electronics & Gadgets" onclick="setCat('Electronics & Gadgets',this)">Electronics & Gadgets</span>
+      <span class="cat-pill" data-cat="Project Files / Source Code" onclick="setCat('Project Files / Source Code',this)">Project Files / Source Code</span>
+      <span class="cat-pill" data-cat="Games & Accessories" onclick="setCat('Games & Accessories',this)">Games & Accessories</span>
+      <span class="cat-pill" data-cat="Miscellaneous" onclick="setCat('Miscellaneous',this)">Miscellaneous</span>
     </div>
 
     <div class="grid" id="listings-grid">
@@ -82,7 +81,14 @@
       checkLoginStatus();
       const params = new URLSearchParams(window.location.search);
       if (params.get('search')) document.getElementById('f-search').value = params.get('search');
-      if (params.get('cat'))    document.getElementById('f-cat').value    = params.get('cat');
+      if (params.get('cat')) {
+        const catVal = params.get('cat');
+        document.getElementById('f-cat').value = catVal;
+        document.querySelectorAll('.cat-pill').forEach(function(p) {
+          p.classList.remove('active');
+          if (p.getAttribute('data-cat') === catVal) p.classList.add('active');
+        });
+      }
       applyFilters();
     };
 
@@ -99,13 +105,13 @@
       const cond   = document.getElementById('f-cond').value;
       const sort   = document.getElementById('f-sort').value;
 
-      fetch('/diu-student-mart/api/listings.php?action=getAll&search=' + search + '&cat=' + cat + '&cond=' + cond + '&sort=' + sort)
+      fetch('/diu-student-mart/api/listings.php?action=getAll&search=' + encodeURIComponent(search) + '&cat=' + encodeURIComponent(cat) + '&cond=' + encodeURIComponent(cond) + '&sort=' + encodeURIComponent(sort))
         .then(function(res) { return res.json(); })
         .then(function(data) {
           const grid  = document.getElementById('listings-grid');
           const empty = document.getElementById('list-empty');
           if (!data.length) {
-            grid.innerHTML     = '';
+            grid.innerHTML      = '';
             empty.style.display = 'block';
           } else {
             empty.style.display = 'none';
