@@ -7,15 +7,13 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
- 
   <nav class="navbar">
     <div class="nav-logo" onclick="window.location.href='index.html'">
-      <div class="logo-box">SM</div>
-      DIU Student Mart
+      <div class="logo-box">SM</div>DIU Student Mart
     </div>
     <div class="nav-links">
       <a href="index.html">Home</a>
-      <a href="Listing.html">Browse</a>
+      <a href="listings.html">Browse</a>
       <a href="post-listing.html" class="btn-post">+ Post Item</a>
       <a href="profile.html" id="nav-profile" style="display:none">Profile</a>
       <a href="admin.html" id="nav-admin" style="display:none">Admin</a>
@@ -23,21 +21,21 @@
       <a href="#" id="nav-logout" style="display:none" onclick="logout()">Logout</a>
     </div>
   </nav>
- 
+
   <div class="container">
     <div class="detail-wrap">
-      <button class="back-btn" onclick="history.back()">← Back to listings</button>
-      <div id="detail-content"><div class="loading">Loading...</div></div>
+      <button class="back-btn" onclick="window.location.href='listings.html'">← Back to listings</button>
+      <div id="detail-content"><div class="loading">Loading item...</div></div>
     </div>
   </div>
- 
+
   <div class="modal-overlay" id="inquiry-modal">
     <div class="modal-box">
       <div class="modal-header">
         <div class="modal-title">Contact Seller</div>
-        <button class="modal-close" onclick="closeModal()">✕</button>
+        <button class="modal-close" onclick="document.getElementById('inquiry-modal').classList.remove('show')">✕</button>
       </div>
-      <div id="modal-seller-info" style="font-size:13px;color:#777;margin-bottom:14px"></div>
+      <div id="modal-seller-info" style="background:#E1F5EE;padding:10px 12px;border-radius:8px;font-size:13px;color:#085041;margin-bottom:14px"></div>
       <div class="form-group">
         <label>Your Message</label>
         <textarea id="inq-msg" placeholder="Hi, I am interested in this item. Is it still available?"></textarea>
@@ -46,107 +44,160 @@
         <label>Your Contact Number</label>
         <input type="text" id="inq-phone" placeholder="01XXXXXXXXX">
       </div>
-      <button class="btn-full" onclick="sendInquiry()">Send Inquiry</button>
+      <div class="alert alert-success" id="inq-success" style="display:none">Inquiry sent successfully!</div>
+      <button class="btn-full" onclick="sendInquiry()">Send Message to Seller</button>
     </div>
   </div>
- 
+
   <div class="toast" id="toast"></div>
- 
+
   <footer class="footer">
     <div class="footer-logo">DIU Student Mart</div>
-    <div class="footer-links"><a href="#">About</a></div>
+    <div class="footer-links">
+      <a href="index.html">Home</a>
+      <a href="listings.html">Browse</a>
+    </div>
   </footer>
- 
+
   <script src="app.js"></script>
   <script>
-    let currentItem = null;
-    const ICONS = {
-      'Books & Notes': '📚',
-      'Electronics & Gadgets': '💻',
-      'Project Files / Source Code': '🗂️',
-      'Games & Accessories': '🎮',
-      'Miscellaneous': '📦'
-    };
- 
+    var currentItem = null;
+
     window.onload = function() {
       checkLoginStatus();
-      const id = new URLSearchParams(window.location.search).get('id');
-      if (!id) { window.location.href = 'Listing.html'; return; }
-      fetch(`api/listings.php?action=getOne&id=${id}`)
-        .then(res => res.json())
-        .then(item => {
-          if (!item || item.error) { document.getElementById('detail-content').innerHTML = '<div class="empty">Item not found.</div>'; return; }
+      var params = new URLSearchParams(window.location.search);
+      var id = params.get('id');
+      if (!id) { window.location.href = 'listings.html'; return; }
+
+      var xhr = new XMLHttpRequest();
+      xhr.open('GET', 'http://localhost/diu-student-mart/api/listings.php?action=getOne&id=' + id, true);
+      xhr.onload = function() {
+        if (xhr.status === 200) {
+          var item = JSON.parse(xhr.responseText);
+          if (!item || item.error) {
+            document.getElementById('detail-content').innerHTML = '<div class="empty">Item not found.</div>';
+            return;
+          }
           currentItem = item;
-          document.title = item.title + ' — DIU Student Mart';
-          const user = getUser();
-          const wished = user && user.wishlist && user.wishlist.includes(parseInt(id));
-          document.getElementById('detail-content').innerHTML = `
-            <div class="detail-card">
-              <div class="detail-img">${ICONS[item.category] || '📦'}</div>
-              <div class="detail-info">
-                <div class="detail-title">${item.title}</div>
-                <div class="detail-price">৳ ${parseInt(item.price).toLocaleString()}</div>
-                <div class="detail-tags">
-                  ${badgeHtml(item.condition_type, item.status)}
-                  <span class="badge" style="background:#f5f7f6;color:#555">${item.category}</span>
-                  <span class="badge" style="background:#f5f7f6;color:#555">${item.department}</span>
-                </div>
-                <div class="detail-desc">${item.description}</div>
-                <div class="seller-box">
-                  <div class="seller-avatar">${item.seller_name ? item.seller_name.split(' ').map(w=>w[0]).join('') : 'U'}</div>
-                  <div>
-                    <div class="seller-name">${item.seller_name || 'Unknown'}</div>
-                    <div class="seller-meta">${item.seller_dept || ''} · ${item.seller_phone || ''}</div>
-                  </div>
-                </div>
-                <button class="btn-full" onclick="openInquiry()">Contact Seller</button>
-                <button class="btn-outline" id="wish-btn" onclick="toggleWish(${item.id})">${wished ? '★ Remove from Wishlist' : '☆ Add to Wishlist'}</button>
-              </div>
-            </div>`;
-        });
+          showDetail(item);
+        }
+      };
+      xhr.onerror = function() {
+        document.getElementById('detail-content').innerHTML = '<div class="empty">Error loading. Make sure XAMPP is running.</div>';
+      };
+      xhr.send();
     };
- 
-    function openInquiry() {
-      const user = getUser();
-      if (!user) { showToast('Please login to contact seller'); setTimeout(() => window.location.href = 'auth.html', 1200); return; }
-      document.getElementById('modal-seller-info').textContent = 'Sending to: ' + currentItem.seller_name + ' · ' + currentItem.seller_phone;
+
+    function showDetail(item) {
+      checkLoginStatus();
+      var icons = {'Books & Notes':'📚','Electronics & Gadgets':'💻','Project Files / Source Code':'🗂️','Games & Accessories':'🎮','Miscellaneous':'📦'};
+      var icon = icons[item.category] || '📦';
+
+      var badgeClass = 'badge-used';
+      var badgeText = item.condition_type || 'Used';
+      if (item.status === 'Reserved') { badgeClass = 'badge-reserved'; badgeText = 'Reserved'; }
+      else if (item.condition_type === 'New') { badgeClass = 'badge-new'; badgeText = 'New'; }
+      else if (item.condition_type === 'Digital') { badgeClass = 'badge-digital'; badgeText = 'Digital'; }
+
+      var initials = 'U';
+      if (item.seller_name) {
+        var parts = item.seller_name.split(' ');
+        initials = '';
+        for (var i = 0; i < parts.length; i++) { initials += parts[i][0]; }
+        initials = initials.toUpperCase();
+      }
+
+      var html = '';
+      html += '<div class="detail-card">';
+      html += '<div class="detail-img" style="font-size:80px;height:200px;display:flex;align-items:center;justify-content:center;background:#f5f5f5">' + icon + '</div>';
+      html += '<div class="detail-info">';
+      html += '<div class="detail-title">' + item.title + '</div>';
+      html += '<div class="detail-price">৳ ' + parseInt(item.price).toLocaleString() + '</div>';
+      html += '<div class="detail-tags">';
+      html += '<span class="badge ' + badgeClass + '">' + badgeText + '</span>';
+      html += '<span class="badge" style="background:#f0f0f0;color:#555">' + item.category + '</span>';
+      html += '<span class="badge" style="background:#f0f0f0;color:#555">' + (item.department || '') + '</span>';
+      html += '</div>';
+      html += '<div style="margin:16px 0;padding:14px;background:#f9f9f9;border-radius:8px">';
+      html += '<div style="font-size:12px;font-weight:700;color:#777;margin-bottom:8px">DESCRIPTION</div>';
+      html += '<div style="font-size:14px;color:#333;line-height:1.7">' + item.description + '</div>';
+      html += '</div>';
+      html += '<div style="background:#E1F5EE;border-radius:10px;padding:14px;margin-bottom:16px;display:flex;align-items:center;gap:12px">';
+      html += '<div style="width:44px;height:44px;border-radius:50%;background:#1D9E75;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;color:#fff;flex-shrink:0">' + initials + '</div>';
+      html += '<div>';
+      html += '<div style="font-size:15px;font-weight:700;color:#085041">' + (item.seller_name || 'Unknown') + '</div>';
+      html += '<div style="font-size:13px;color:#0F6E56">' + (item.seller_dept || '') + ' Department</div>';
+      html += '<div style="font-size:13px;font-weight:700;color:#1D9E75">📞 ' + (item.seller_phone || 'No phone') + '</div>';
+      html += '</div></div>';
+      html += '<button onclick="openContact()" style="width:100%;background:#1D9E75;color:#fff;border:none;border-radius:8px;padding:14px;font-size:16px;font-weight:700;cursor:pointer;margin-bottom:10px">📩 Contact Seller Now</button>';
+      html += '<button id="wish-btn" onclick="toggleWish(' + item.id + ')" style="width:100%;background:transparent;color:#1D9E75;border:1px solid #1D9E75;border-radius:8px;padding:11px;font-size:14px;cursor:pointer;margin-bottom:16px">☆ Add to Wishlist</button>';
+      html += '<div style="background:#fff;border:1px solid #eee;border-radius:10px;padding:16px">';
+      html += '<div style="font-size:14px;font-weight:700;margin-bottom:10px">📋 How to buy</div>';
+      html += '<div style="font-size:13px;color:#555;line-height:2">';
+      html += '1. Click <strong>Contact Seller Now</strong><br>';
+      html += '2. Type your message and send<br>';
+      html += '3. Seller contacts you on your number<br>';
+      html += '4. Meet inside DIU campus and exchange';
+      html += '</div></div>';
+      html += '</div></div>';
+
+      document.getElementById('detail-content').innerHTML = html;
+    }
+
+    function openContact() {
+      var user = getUser();
+      if (!user) {
+        showToast('Please login first!');
+        setTimeout(function(){ window.location.href = 'auth.html'; }, 1200);
+        return;
+      }
+      if (currentItem.seller_id == user.id) {
+        showToast('This is your own listing!');
+        return;
+      }
+      document.getElementById('modal-seller-info').innerHTML =
+        '<strong>Seller:</strong> ' + currentItem.seller_name +
+        ' &nbsp;|&nbsp; <strong>Phone:</strong> ' + (currentItem.seller_phone || 'N/A');
       document.getElementById('inq-phone').value = user.phone || '';
+      document.getElementById('inq-msg').value = '';
+      document.getElementById('inq-success').style.display = 'none';
       document.getElementById('inquiry-modal').classList.add('show');
     }
- 
-    function closeModal() { document.getElementById('inquiry-modal').classList.remove('show'); }
- 
+
     function sendInquiry() {
-      const user = getUser();
-      const msg = document.getElementById('inq-msg').value.trim();
-      const phone = document.getElementById('inq-phone').value.trim();
-      if (!msg) { showToast('Please write a message'); return; }
-      fetch('api/inquiries.php', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ listing_id: currentItem.id, buyer_id: user.id, message: msg, phone })
-      })
-      .then(res => res.json())
-      .then(data => {
-        closeModal();
-        showToast('Inquiry sent to ' + currentItem.seller_name + '!');
-      });
+      var user = getUser();
+      var msg = document.getElementById('inq-msg').value.trim();
+      var phone = document.getElementById('inq-phone').value.trim();
+      if (!msg) { showToast('Please write a message!'); return; }
+
+      var xhr = new XMLHttpRequest();
+      xhr.open('POST', 'http://localhost/diu-student-mart/api/inquiries.php', true);
+      xhr.setRequestHeader('Content-Type', 'application/json');
+      xhr.onload = function() {
+        document.getElementById('inq-success').style.display = 'block';
+        showToast('Message sent to ' + currentItem.seller_name + '!');
+        setTimeout(function(){ document.getElementById('inquiry-modal').classList.remove('show'); }, 2000);
+      };
+      xhr.send(JSON.stringify({ listing_id: currentItem.id, buyer_id: user.id, message: msg, phone: phone }));
     }
- 
+
     function toggleWish(id) {
-      const user = getUser();
-      if (!user) { showToast('Please login to use wishlist'); return; }
-      fetch('api/auth.php', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'toggleWish', user_id: user.id, listing_id: id })
-      })
-      .then(res => res.json())
-      .then(data => {
-        showToast(data.added ? 'Added to wishlist!' : 'Removed from wishlist');
-        const btn = document.getElementById('wish-btn');
-        btn.textContent = data.added ? '★ Remove from Wishlist' : '☆ Add to Wishlist';
-      });
+      var user = getUser();
+      if (!user) { showToast('Please login to use wishlist!'); return; }
+      var key = 'wishlist_' + user.id;
+      var wl = JSON.parse(localStorage.getItem(key) || '[]');
+      var idx = wl.indexOf(parseInt(id));
+      var btn = document.getElementById('wish-btn');
+      if (idx > -1) {
+        wl.splice(idx, 1);
+        btn.textContent = '☆ Add to Wishlist';
+        showToast('Removed from wishlist');
+      } else {
+        wl.push(parseInt(id));
+        btn.textContent = '★ Remove from Wishlist';
+        showToast('Added to wishlist!');
+      }
+      localStorage.setItem(key, JSON.stringify(wl));
     }
   </script>
 </body>

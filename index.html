@@ -7,8 +7,7 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
- 
-  <!-- NAVBAR -->
+
   <nav class="navbar">
     <div class="nav-logo" onclick="window.location.href='index.html'">
       <div class="logo-box">SM</div>
@@ -16,7 +15,7 @@
     </div>
     <div class="nav-links">
       <a href="index.html" class="active">Home</a>
-      <a href="Listing.html">Browse</a>
+      <a href="listings.html">Browse</a>
       <a href="post-listing.html" class="btn-post">+ Post Item</a>
       <a href="profile.html" id="nav-profile" style="display:none">Profile</a>
       <a href="admin.html" id="nav-admin" style="display:none">Admin</a>
@@ -24,8 +23,7 @@
       <a href="#" id="nav-logout" style="display:none" onclick="logout()">Logout</a>
     </div>
   </nav>
- 
-  <!-- HERO -->
+
   <section class="hero">
     <h1>Buy, Sell & Exchange — Within DIU</h1>
     <p>The trusted marketplace exclusively for Daffodil International University students</p>
@@ -42,8 +40,7 @@
       <button onclick="searchItems()">Search</button>
     </div>
   </section>
- 
-  <!-- CATEGORIES -->
+
   <section class="container">
     <div class="cat-pills" id="cat-pills">
       <span class="cat-pill active" onclick="filterCat('', this)">All</span>
@@ -54,19 +51,17 @@
       <span class="cat-pill" onclick="filterCat('Miscellaneous', this)">Miscellaneous</span>
     </div>
   </section>
-  
-  <!-- LISTINGS -->
+
   <section class="container">
     <div class="section-header">
       <h2>Recently Listed</h2>
-      <a href="Listing.html">View All</a>
+      <a href="listings.html">View All</a>
     </div>
     <div class="grid" id="home-grid">
       <div class="loading">Loading listings...</div>
     </div>
   </section>
- 
-  <!-- STATS -->
+
   <section class="container">
     <div class="stats-row">
       <div class="stat-box">
@@ -83,8 +78,7 @@
       </div>
     </div>
   </section>
- 
-  <!-- FOOTER -->
+
   <footer class="footer">
     <div class="footer-logo">DIU Student Mart</div>
     <div class="footer-links">
@@ -93,19 +87,21 @@
       <a href="#">Privacy Policy</a>
     </div>
   </footer>
- 
+
+  <div class="toast" id="toast"></div>
+
   <script src="app.js"></script>
   <script>
     window.onload = function() {
       checkLoginStatus();
-      loadHomeListings();
+      loadHomeListings('', '');
       loadStats();
     };
- 
-    function loadHomeListings(cat = '', search = '') {
-      fetch(`api/listings.php?action=getAll&cat=${encodeURIComponent(cat)}&search=${encodeURIComponent(search)}`)
-        .then(res => res.json())
-        .then(data => {
+
+    function loadHomeListings(cat, search) {
+      fetch('/diu-student-mart/api/listings.php?action=getAll&cat=' + cat + '&search=' + search)
+        .then(function(res) { return res.json(); })
+        .then(function(data) {
           const grid = document.getElementById('home-grid');
           if (!data.length) {
             grid.innerHTML = '<div class="empty">No listings found.</div>';
@@ -113,31 +109,31 @@
           }
           grid.innerHTML = data.slice(0, 8).map(cardHtml).join('');
         })
-        .catch(() => {
+        .catch(function() {
           document.getElementById('home-grid').innerHTML = '<div class="empty">Could not load listings. Make sure XAMPP is running.</div>';
         });
     }
- 
+
     function loadStats() {
-      fetch('api/listings.php?action=stats')
-        .then(res => res.json())
-        .then(data => {
+      fetch('/diu-student-mart/api/listings.php?action=stats')
+        .then(function(res) { return res.json(); })
+        .then(function(data) {
           document.getElementById('stat-listings').textContent = data.listings || 0;
-          document.getElementById('stat-users').textContent = data.users || 0;
-          document.getElementById('stat-sold').textContent = data.sold || 0;
+          document.getElementById('stat-users').textContent    = data.users    || 0;
+          document.getElementById('stat-sold').textContent     = data.sold     || 0;
         });
     }
- 
+
     function filterCat(cat, el) {
-      document.querySelectorAll('.cat-pill').forEach(p => p.classList.remove('active'));
+      document.querySelectorAll('.cat-pill').forEach(function(p) { p.classList.remove('active'); });
       el.classList.add('active');
-      loadHomeListings(cat);
+      loadHomeListings(cat, '');
     }
- 
+
     function searchItems() {
-      const q = document.getElementById('search-input').value;
+      const q   = document.getElementById('search-input').value;
       const cat = document.getElementById('search-cat').value;
-      window.location.href = `Listing.html?search=${encodeURIComponent(q)}&cat=${encodeURIComponent(cat)}`;
+      window.location.href = 'listings.html?search=' + q + '&cat=' + cat;
     }
   </script>
 </body>

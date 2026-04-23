@@ -7,7 +7,7 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
- 
+
   <nav class="navbar">
     <div class="nav-logo" onclick="window.location.href='index.html'">
       <div class="logo-box">SM</div>
@@ -15,7 +15,7 @@
     </div>
     <div class="nav-links">
       <a href="index.html">Home</a>
-      <a href="Listing.html">Browse</a>
+      <a href="listings.html">Browse</a>
       <a href="post-listing.html" class="btn-post active">+ Post Item</a>
       <a href="profile.html" id="nav-profile" style="display:none">Profile</a>
       <a href="admin.html" id="nav-admin" style="display:none">Admin</a>
@@ -23,13 +23,15 @@
       <a href="#" id="nav-logout" style="display:none" onclick="logout()">Logout</a>
     </div>
   </nav>
- 
+
   <div class="container">
     <div class="post-card">
       <h2 style="font-size:18px;font-weight:700;margin-bottom:4px">Post a New Listing</h2>
       <p style="font-size:13px;color:#777;margin-bottom:20px">Fill in the details to list your item</p>
-      <div class="alert alert-error" id="post-error" style="display:none"></div>
+
+      <div class="alert alert-error"   id="post-error"   style="display:none"></div>
       <div class="alert alert-success" id="post-success" style="display:none"></div>
+
       <div class="form-group">
         <label>Item Title *</label>
         <input type="text" id="p-title" placeholder="e.g. Data Structures textbook by Goodrich">
@@ -68,7 +70,7 @@
       </div>
       <div class="form-group">
         <label>Description *</label>
-        <textarea id="p-desc" placeholder="Describe your item — condition, edition, what's included, etc."></textarea>
+        <textarea id="p-desc" placeholder="Describe your item — condition, edition, what is included, etc."></textarea>
       </div>
       <div class="form-group">
         <label>Status</label>
@@ -80,7 +82,9 @@
       <button class="btn-full" onclick="doPost()">Post Listing</button>
     </div>
   </div>
- 
+
+  <div class="toast" id="toast"></div>
+
   <footer class="footer">
     <div class="footer-logo">DIU Student Mart</div>
     <div class="footer-links"><a href="#">About</a></div>
@@ -91,52 +95,60 @@
     window.onload = function() {
       checkLoginStatus();
       const user = getUser();
-      if (!user) { alert('Please login to post a listing!'); window.location.href = 'auth.html'; }
+      if (!user) {
+        alert('Please login to post a listing!');
+        window.location.href = 'auth.html';
+      }
     };
- 
+
     function doPost() {
-      const user = getUser();
+      const user  = getUser();
       if (!user) { window.location.href = 'auth.html'; return; }
+
       const title = document.getElementById('p-title').value.trim();
       const price = document.getElementById('p-price').value;
       const desc  = document.getElementById('p-desc').value.trim();
       const errEl = document.getElementById('post-error');
       const sucEl = document.getElementById('post-success');
+
       errEl.style.display = 'none';
       sucEl.style.display = 'none';
-      if (!title) { errEl.textContent = 'Please enter item title!'; errEl.style.display = 'block'; return; }
+
+      if (!title) { errEl.textContent = 'Please enter item title!';       errEl.style.display = 'block'; return; }
       if (!price || price <= 0) { errEl.textContent = 'Please enter a valid price!'; errEl.style.display = 'block'; return; }
-      if (!desc)  { errEl.textContent = 'Please enter description!'; errEl.style.display = 'block'; return; }
-      const postData = {
-        action: 'add', title, price,
-        category:       document.getElementById('p-cat').value,
-        condition_type: document.getElementById('p-cond').value,
-        department:     document.getElementById('p-dept').value,
-        description:    desc,
-        status:         document.getElementById('p-status').value,
-        seller_id:      user.id
-      };
-      fetch('api/listings.php', {
-        method: 'POST',
+      if (!desc)  { errEl.textContent = 'Please enter a description!';    errEl.style.display = 'block'; return; }
+
+      fetch('/diu-student-mart/api/listings.php', {
+        method:  'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(postData)
+        body: JSON.stringify({
+          action:         'add',
+          title:          title,
+          category:       document.getElementById('p-cat').value,
+          price:          price,
+          condition_type: document.getElementById('p-cond').value,
+          department:     document.getElementById('p-dept').value,
+          description:    desc,
+          status:         document.getElementById('p-status').value,
+          seller_id:      user.id
+        })
       })
-      .then(res => res.json())
-      .then(data => {
+      .then(function(res) { return res.json(); })
+      .then(function(data) {
         if (data.success) {
-          sucEl.textContent = 'Listing posted successfully! Redirecting...';
+          sucEl.textContent   = 'Listing posted successfully! Redirecting...';
           sucEl.style.display = 'block';
           document.getElementById('p-title').value = '';
           document.getElementById('p-price').value = '';
           document.getElementById('p-desc').value  = '';
-          setTimeout(() => { window.location.href = 'Listing.html'; }, 1500);
+          setTimeout(function() { window.location.href = 'listings.html'; }, 1500);
         } else {
-          errEl.textContent = data.message || 'Failed to post. Try again.';
+          errEl.textContent   = data.message || 'Failed to post. Try again.';
           errEl.style.display = 'block';
         }
       })
-      .catch(err => {
-        errEl.textContent = 'Connection error! Make sure XAMPP is running.';
+      .catch(function() {
+        errEl.textContent   = 'Connection error! Make sure XAMPP is running.';
         errEl.style.display = 'block';
       });
     }

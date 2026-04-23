@@ -7,7 +7,7 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
- 
+
   <nav class="navbar">
     <div class="nav-logo" onclick="window.location.href='index.html'">
       <div class="logo-box">SM</div>
@@ -15,16 +15,16 @@
     </div>
     <div class="nav-links">
       <a href="index.html">Home</a>
-      <a href="Listing.html">Browse</a>
+      <a href="listings.html">Browse</a>
     </div>
   </nav>
- 
+
   <section class="container" style="max-width:420px;margin-top:40px">
- 
+
     <div class="auth-card" id="login-card">
       <h2 class="auth-title">Welcome Back</h2>
       <p class="auth-sub">Sign in to your DIU Student Mart account</p>
-      <div class="alert alert-error" id="login-error" style="display:none"></div>
+      <div class="alert alert-error"   id="login-error"   style="display:none"></div>
       <div class="alert alert-success" id="login-success" style="display:none"></div>
       <div class="form-group">
         <label>Student ID or Email</label>
@@ -36,9 +36,9 @@
       </div>
       <button class="btn-full" onclick="doLogin()">Sign In</button>
       <p class="auth-switch">Don't have an account? <span onclick="toggleForm('register')">Register here</span></p>
-      <p class="demo-hint">Demo: admin@diu.edu.bd / admin123</p>
+      <p class="demo-hint">Demo admin: admin@diu.edu.bd / admin123</p>
     </div>
- 
+
     <div class="auth-card" id="register-card" style="display:none">
       <h2 class="auth-title">Create Account</h2>
       <p class="auth-sub">Join DIU Student Mart today</p>
@@ -58,14 +58,9 @@
       <div class="form-group">
         <label>Department</label>
         <select id="reg-dept">
-          <option>CSE</option>
-          <option>EEE</option>
-          <option>BBA</option>
-          <option>CE</option>
-          <option>Textile</option>
-          <option>Law</option>
-          <option>English</option>
-          <option>Pharmacy</option>
+          <option>CSE</option><option>EEE</option><option>BBA</option>
+          <option>CE</option><option>Textile</option><option>Law</option>
+          <option>English</option><option>Pharmacy</option>
         </select>
       </div>
       <div class="form-group">
@@ -79,67 +74,93 @@
       <button class="btn-full" onclick="doRegister()">Create Account</button>
       <p class="auth-switch">Already have an account? <span onclick="toggleForm('login')">Sign in</span></p>
     </div>
- 
+
   </section>
-  
+
+  <div class="toast" id="toast"></div>
+
   <script src="app.js"></script>
   <script>
     function toggleForm(type) {
-      document.getElementById('login-card').style.display = type === 'login' ? 'block' : 'none';
+      document.getElementById('login-card').style.display    = type === 'login'    ? 'block' : 'none';
       document.getElementById('register-card').style.display = type === 'register' ? 'block' : 'none';
     }
- 
+
     function doLogin() {
       const email = document.getElementById('login-email').value.trim();
-      const pass = document.getElementById('login-pass').value;
+      const pass  = document.getElementById('login-pass').value;
       const errEl = document.getElementById('login-error');
       const sucEl = document.getElementById('login-success');
       errEl.style.display = 'none';
-      if (!email || !pass) { errEl.textContent = 'Please fill all fields'; errEl.style.display = 'block'; return; }
-      fetch('api/auth.php', {
-        method: 'POST',
+
+      if (!email || !pass) {
+        errEl.textContent   = 'Please fill all fields';
+        errEl.style.display = 'block';
+        return;
+      }
+
+      fetch('/diu-student-mart/api/auth.php', {
+        method:  'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'login', email, password: pass })
+        body:    JSON.stringify({ action: 'login', email: email, password: pass })
       })
-      .then(res => res.json())
-      .then(data => {
+      .then(function(res) { return res.json(); })
+      .then(function(data) {
         if (data.success) {
           localStorage.setItem('user', JSON.stringify(data.user));
-          sucEl.textContent = 'Login successful! Redirecting...';
+          sucEl.textContent   = 'Login successful! Redirecting...';
           sucEl.style.display = 'block';
-          setTimeout(() => window.location.href = 'index.html', 1000);
+          setTimeout(function() { window.location.href = 'index.html'; }, 1000);
         } else {
-          errEl.textContent = data.message || 'Invalid credentials';
+          errEl.textContent   = data.message || 'Invalid credentials';
           errEl.style.display = 'block';
         }
+      })
+      .catch(function() {
+        errEl.textContent   = 'Connection error! Make sure XAMPP is running.';
+        errEl.style.display = 'block';
       });
     }
- 
+
     function doRegister() {
-      const name = document.getElementById('reg-name').value.trim();
-      const sid = document.getElementById('reg-id').value.trim();
+      const name  = document.getElementById('reg-name').value.trim();
+      const sid   = document.getElementById('reg-id').value.trim();
       const email = document.getElementById('reg-email').value.trim();
-      const dept = document.getElementById('reg-dept').value;
+      const dept  = document.getElementById('reg-dept').value;
       const phone = document.getElementById('reg-phone').value.trim();
-      const pass = document.getElementById('reg-pass').value;
+      const pass  = document.getElementById('reg-pass').value;
       const errEl = document.getElementById('reg-error');
       errEl.style.display = 'none';
-      if (!name || !sid || !email || !pass) { errEl.textContent = 'Please fill all required fields'; errEl.style.display = 'block'; return; }
-      if (pass.length < 6) { errEl.textContent = 'Password must be at least 6 characters'; errEl.style.display = 'block'; return; }
-      fetch('api/auth.php', {
-        method: 'POST',
+
+      if (!name || !sid || !email || !pass) {
+        errEl.textContent   = 'Please fill all required fields';
+        errEl.style.display = 'block';
+        return;
+      }
+      if (pass.length < 6) {
+        errEl.textContent   = 'Password must be at least 6 characters';
+        errEl.style.display = 'block';
+        return;
+      }
+
+      fetch('/diu-student-mart/api/auth.php', {
+        method:  'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'register', name, student_id: sid, email, department: dept, phone, password: pass })
+        body:    JSON.stringify({ action: 'register', name: name, student_id: sid, email: email, department: dept, phone: phone, password: pass })
       })
-      .then(res => res.json())
-      .then(data => {
+      .then(function(res) { return res.json(); })
+      .then(function(data) {
         if (data.success) {
           localStorage.setItem('user', JSON.stringify(data.user));
           window.location.href = 'index.html';
         } else {
-          errEl.textContent = data.message || 'Registration failed';
+          errEl.textContent   = data.message || 'Registration failed';
           errEl.style.display = 'block';
         }
+      })
+      .catch(function() {
+        errEl.textContent   = 'Connection error! Make sure XAMPP is running.';
+        errEl.style.display = 'block';
       });
     }
   </script>
