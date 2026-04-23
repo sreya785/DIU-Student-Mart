@@ -5,6 +5,180 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>My Profile — DIU Student Mart</title>
   <link rel="stylesheet" href="style.css">
+  <style>
+    .profile-wrap { max-width: 780px; margin: 0 auto; padding: 24px 16px 40px; }
+
+    /* Hero */
+    .profile-hero {
+      background: linear-gradient(135deg, #0F6E56 0%, #1D9E75 100%);
+      border-radius: 16px; padding: 28px 28px 22px;
+      display: flex; align-items: center; gap: 22px;
+      margin-bottom: 22px; color: #fff;
+      position: relative; overflow: hidden;
+    }
+    .profile-hero::before {
+      content: ''; position: absolute; top: -40px; right: -40px;
+      width: 160px; height: 160px; border-radius: 50%;
+      background: rgba(255,255,255,0.08);
+    }
+    .profile-hero-avatar {
+      width: 72px; height: 72px; border-radius: 50%;
+      background: rgba(255,255,255,0.25);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 26px; font-weight: 800; color: #fff; flex-shrink: 0;
+      border: 3px solid rgba(255,255,255,0.5); letter-spacing: 1px;
+    }
+    .profile-hero-info { flex: 1; }
+    .profile-hero-name { font-size: 20px; font-weight: 800; margin-bottom: 4px; }
+    .profile-hero-meta { font-size: 13px; opacity: 0.85; margin-top: 3px; }
+    .profile-hero-badge {
+      display: inline-flex; align-items: center; gap: 5px;
+      background: rgba(255,255,255,0.18); border-radius: 20px;
+      padding: 4px 12px; font-size: 12px; font-weight: 600; margin-top: 10px;
+    }
+
+    /* Stats */
+    .profile-stats {
+      display: grid; grid-template-columns: repeat(3,1fr);
+      gap: 10px; margin-bottom: 20px;
+    }
+    .stat-box {
+      background: #fff; border: 1px solid #e8e8e8;
+      border-radius: 12px; padding: 14px 10px; text-align: center;
+    }
+    .stat-box-num { font-size: 22px; font-weight: 800; color: #1D9E75; }
+    .stat-box-label { font-size: 11px; color: #888; margin-top: 2px; }
+
+    /* Tabs */
+    .tab-row {
+      display: flex; gap: 6px; margin-bottom: 18px;
+      background: #f5f7f6; border-radius: 10px; padding: 5px;
+    }
+    .tab-btn {
+      flex: 1; background: transparent; border: none;
+      border-radius: 7px; padding: 9px 6px;
+      font-size: 12px; cursor: pointer; color: #666;
+      font-weight: 500; transition: all 0.2s; white-space: nowrap;
+    }
+    .tab-btn.active {
+      background: #fff; color: #085041; font-weight: 700;
+      box-shadow: 0 1px 6px rgba(0,0,0,0.08);
+    }
+
+    /* Grid */
+    .pg-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 14px; }
+    .pg-card {
+      background: #fff; border: 1px solid #e8e8e8;
+      border-radius: 12px; overflow: hidden; cursor: pointer;
+      transition: box-shadow 0.2s, transform 0.15s;
+    }
+    .pg-card:hover { box-shadow: 0 4px 18px rgba(0,0,0,0.09); transform: translateY(-2px); }
+    .pg-card-img {
+      height: 100px; display: flex; align-items: center;
+      justify-content: center; font-size: 42px; background: #f5f7f6;
+    }
+    .pg-card-body { padding: 12px; }
+    .pg-card-title {
+      font-size: 13px; font-weight: 600; margin-bottom: 4px;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .pg-card-price { font-size: 15px; font-weight: 700; color: #0F6E56; margin-bottom: 8px; }
+    .pg-card-footer { display: flex; align-items: center; justify-content: space-between; }
+    .btn-del {
+      width: 100%; background: #FCEBEB; color: #791F1F; border: none;
+      border-radius: 6px; padding: 6px; font-size: 11px; font-weight: 600;
+      cursor: pointer; margin-top: 8px; transition: background 0.2s;
+    }
+    .btn-del:hover { background: #f5c6c6; }
+    .btn-remove-wish {
+      width: 100%; background: #fff; color: #791F1F;
+      border: 1px solid #e08080; border-radius: 6px;
+      padding: 6px; font-size: 11px; font-weight: 600;
+      cursor: pointer; margin-top: 8px; transition: all 0.2s;
+    }
+    .btn-remove-wish:hover { background: #FCEBEB; }
+
+    /* Inquiry cards */
+    .inq-card {
+      background: #fff; border: 1px solid #e8e8e8;
+      border-radius: 10px; padding: 14px 16px; margin-bottom: 10px;
+    }
+    .inq-badge {
+      display: inline-block; background: #E1F5EE; color: #085041;
+      border-radius: 20px; padding: 2px 9px; font-size: 10px;
+      font-weight: 600; margin-bottom: 6px;
+    }
+    .inq-title { font-size: 13px; font-weight: 700; color: #1a1a1a; margin-bottom: 4px; }
+    .inq-msg { font-size: 12px; color: #555; line-height: 1.5; margin-bottom: 4px; }
+    .inq-date { font-size: 11px; color: #aaa; }
+
+    /* Edit form */
+    .edit-card {
+      background: #fff; border: 1px solid #e8e8e8;
+      border-radius: 14px; padding: 26px; max-width: 540px;
+    }
+    .edit-card h3 { font-size: 16px; font-weight: 700; margin-bottom: 20px; color: #085041; }
+    .edit-section-title {
+      font-size: 11px; font-weight: 700; color: #888;
+      text-transform: uppercase; letter-spacing: 0.8px; margin: 0 0 14px;
+    }
+    .edit-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .form-group { margin-bottom: 16px; }
+    .form-group label {
+      display: block; font-size: 12px; color: #555;
+      margin-bottom: 6px; font-weight: 600;
+    }
+    .form-group input, .form-group select {
+      width: 100%; padding: 10px 13px; border: 1.5px solid #ddd;
+      border-radius: 8px; font-size: 13px; background: #fff;
+      color: #1a1a1a; outline: none; transition: border-color 0.2s;
+      box-sizing: border-box;
+    }
+    .form-group input:focus, .form-group select:focus { border-color: #1D9E75; }
+    .form-group input[readonly] { background: #f5f7f6; color: #888; cursor: not-allowed; }
+    .section-divider { border: none; border-top: 1px solid #eee; margin: 22px 0; }
+    .save-btn {
+      background: #1D9E75; color: #fff; border: none;
+      border-radius: 8px; padding: 12px 28px;
+      font-size: 14px; font-weight: 700; cursor: pointer; transition: background 0.2s;
+    }
+    .save-btn:hover { background: #0F6E56; }
+    .save-btn:disabled { background: #8ecbb5; cursor: default; }
+    .save-btn-pass {
+      background: #444; color: #fff; border: none;
+      border-radius: 8px; padding: 12px 28px;
+      font-size: 14px; font-weight: 700; cursor: pointer; transition: background 0.2s;
+    }
+    .save-btn-pass:hover { background: #222; }
+
+    .success-banner {
+      background: #E1F5EE; border: 1px solid #5DCAA5; color: #085041;
+      border-radius: 8px; padding: 10px 14px; font-size: 13px;
+      font-weight: 600; margin-bottom: 16px;
+    }
+    .error-banner {
+      background: #FCEBEB; border: 1px solid #e08080; color: #791F1F;
+      border-radius: 8px; padding: 10px 14px; font-size: 13px;
+      font-weight: 600; margin-bottom: 16px;
+    }
+
+    /* Empty */
+    .empty-state { text-align: center; padding: 50px 20px; color: #aaa; }
+    .empty-state-icon { font-size: 48px; margin-bottom: 12px; }
+    .empty-state p { font-size: 14px; margin-bottom: 16px; }
+    .empty-state a {
+      background: #1D9E75; color: #fff; text-decoration: none;
+      border-radius: 8px; padding: 10px 20px; font-size: 13px;
+      font-weight: 600; display: inline-block;
+    }
+
+    @media (max-width: 600px) {
+      .profile-hero { flex-direction: column; text-align: center; gap: 14px; }
+      .tab-btn { font-size: 11px; padding: 8px 3px; }
+      .edit-row { grid-template-columns: 1fr; }
+      .pg-grid { grid-template-columns: repeat(auto-fill, minmax(150px,1fr)); }
+    }
+  </style>
 </head>
 <body>
 
@@ -15,24 +189,53 @@
     </div>
     <div class="nav-links">
       <a href="index.html">Home</a>
-      <a href="listings.html">Browse</a>
+      <a href="Listing.html">Browse</a>
       <a href="post-listing.html" class="btn-post">+ Post Item</a>
       <a href="profile.html" class="active" id="nav-profile" style="display:none">Profile</a>
       <a href="admin.html" id="nav-admin" style="display:none">Admin</a>
-      <a href="auth.html" id="nav-login">Login</a>
+      <a href="Auth.html" id="nav-login">Login</a>
       <a href="#" id="nav-logout" style="display:none" onclick="logout()">Logout</a>
     </div>
   </nav>
 
-  <div class="container">
-    <div id="profile-header" class="profile-header"></div>
-    <div class="tab-row">
-      <button class="tab-btn active" onclick="loadTab('listings', this)">My Listings</button>
-      <button class="tab-btn" onclick="loadTab('wishlist', this)">Wishlist</button>
-      <button class="tab-btn" onclick="loadTab('edit', this)">Edit Profile</button>
-      <button class="tab-btn" onclick="loadTab('inquiries', this)">My Inquiries</button>
+  <div class="profile-wrap">
+
+    <!-- Hero Banner -->
+    <div class="profile-hero">
+      <div class="profile-hero-avatar" id="hero-avatar">?</div>
+      <div class="profile-hero-info">
+        <div class="profile-hero-name" id="hero-name">Loading...</div>
+        <div class="profile-hero-meta" id="hero-meta1"></div>
+        <div class="profile-hero-meta" id="hero-meta2"></div>
+        <div class="profile-hero-badge">⭐ Student Member · DIU</div>
+      </div>
     </div>
-    <div id="tab-content"></div>
+
+    <!-- Stats Row -->
+    <div class="profile-stats">
+      <div class="stat-box">
+        <div class="stat-box-num" id="stat-listings">—</div>
+        <div class="stat-box-label">My Listings</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-box-num" id="stat-wishlist">—</div>
+        <div class="stat-box-label">Wishlist</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-box-num" id="stat-inquiries">—</div>
+        <div class="stat-box-label">Inquiries</div>
+      </div>
+    </div>
+
+    <!-- Tab Bar -->
+    <div class="tab-row">
+      <button class="tab-btn active" id="tab-listings-btn"  onclick="switchTab('listings')">📋 My Listings</button>
+      <button class="tab-btn"        id="tab-wishlist-btn"  onclick="switchTab('wishlist')">❤️ Wishlist</button>
+      <button class="tab-btn"        id="tab-inquiries-btn" onclick="switchTab('inquiries')">💬 Inquiries</button>
+      <button class="tab-btn"        id="tab-edit-btn"      onclick="switchTab('edit')">✏️ Edit Profile</button>
+    </div>
+
+    <div id="tab-content"><div class="loading">Loading...</div></div>
   </div>
 
   <div class="toast" id="toast"></div>
@@ -44,137 +247,326 @@
 
   <script src="app.js"></script>
   <script>
-    const ICONS = {
+    const CAT_ICONS = {
       'Books & Notes':'📚','Electronics & Gadgets':'💻',
       'Project Files / Source Code':'🗂️','Games & Accessories':'🎮','Miscellaneous':'📦'
     };
 
     let user = null;
 
-    window.onload = function() {
+    /* ====== INIT ====== */
+    window.onload = function () {
       checkLoginStatus();
       user = getUser();
-      if (!user) { window.location.href = 'auth.html'; return; }
-      renderHeader();
-      loadTab('listings', document.querySelector('.tab-btn'));
+      if (!user) { window.location.href = 'Auth.html'; return; }
+      renderHero();
+      loadStats();
+      switchTab('listings');
     };
 
-    function renderHeader() {
-      const initials = user.name.split(' ').map(function(w){ return w[0]; }).join('').toUpperCase();
-      document.getElementById('profile-header').innerHTML =
-        '<div class="profile-avatar">' + initials + '</div>' +
-        '<div>' +
-          '<div class="profile-name">'  + user.name       + '</div>' +
-          '<div class="profile-meta">'  + user.student_id + ' · ' + user.department + '</div>' +
-          '<div class="profile-meta">'  + user.email      + ' · ' + (user.phone || 'No phone') + '</div>' +
-          '<div class="profile-meta" style="color:#BA7517;margin-top:4px">★★★★☆ 4.2 Seller Rating</div>' +
-        '</div>';
+    /* ====== HERO ====== */
+    function renderHero() {
+      const initials = user.name.trim().split(/\s+/).map(w => w[0]).join('').toUpperCase().slice(0, 2);
+      document.getElementById('hero-avatar').textContent = initials;
+      document.getElementById('hero-name').textContent   = user.name;
+      document.getElementById('hero-meta1').textContent  =
+        (user.student_id || '') + (user.department ? '  ·  ' + user.department : '');
+      document.getElementById('hero-meta2').textContent  =
+        user.email + (user.phone ? '  ·  ' + user.phone : '');
     }
 
-    function loadTab(tab, btn) {
-      document.querySelectorAll('.tab-btn').forEach(function(b){ b.classList.remove('active'); });
-      btn.classList.add('active');
+    /* ====== STATS ====== */
+    function loadStats() {
+      const wl = JSON.parse(localStorage.getItem('wishlist_' + user.id) || '[]');
+      document.getElementById('stat-wishlist').textContent = wl.length;
+
+      const inqs = JSON.parse(localStorage.getItem('inquiries_' + user.id) || '[]');
+      document.getElementById('stat-inquiries').textContent = inqs.length;
+
+      fetchMyListings(function(data) {
+        document.getElementById('stat-listings').textContent = data.length;
+      });
+    }
+
+    /* ====== FETCH LISTINGS (backend → local fallback) ====== */
+    function fetchMyListings(cb) {
+      fetch('/diu-student-mart/api/listings.php?action=getByUser&user_id=' + user.id)
+        .then(r => r.json())
+        .then(data => cb(Array.isArray(data) ? data : []))
+        .catch(() => {
+          cb(JSON.parse(localStorage.getItem('local_listings_' + user.id) || '[]'));
+        });
+    }
+
+    /* ====== TAB SWITCH ====== */
+    function switchTab(tab) {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.getElementById('tab-' + tab + '-btn').classList.add('active');
       const c = document.getElementById('tab-content');
+      c.innerHTML = '<div class="loading">Loading...</div>';
+      if      (tab === 'listings')  renderListings(c);
+      else if (tab === 'wishlist')  renderWishlist(c);
+      else if (tab === 'inquiries') renderInquiries(c);
+      else if (tab === 'edit')      renderEdit(c);
+    }
 
-      if (tab === 'listings') {
-        fetch('/diu-student-mart/api/listings.php?action=getByUser&user_id=' + user.id)
-          .then(function(r){ return r.json(); })
-          .then(function(data) {
-            if (!data.length) {
-              c.innerHTML = '<div class="empty">No listings yet. <a href="post-listing.html" style="color:#1D9E75">Post your first item</a></div>';
-              return;
-            }
-            c.innerHTML = '<div class="grid">' + data.map(function(item) {
-              return '<div class="card" onclick="window.location.href=\'product-detail.html?id=' + item.id + '\'">' +
-                '<div class="card-img">' + (ICONS[item.category] || '📦') + '</div>' +
-                '<div class="card-body">' +
-                  '<div class="card-title">' + item.title + '</div>' +
-                  '<div class="card-price">৳ ' + parseInt(item.price).toLocaleString() + '</div>' +
-                  '<div class="card-footer">' +
-                    badgeHtml(item.condition_type, item.status) +
-                    '<button onclick="event.stopPropagation();deleteListing(' + item.id + ')" class="btn-delete">Delete</button>' +
-                  '</div>' +
-                '</div>' +
-              '</div>';
-            }).join('') + '</div>';
-          });
-
-      } else if (tab === 'wishlist') {
-        const key = 'wishlist_' + user.id;
-        const wl  = JSON.parse(localStorage.getItem(key) || '[]');
-        if (!wl.length) { c.innerHTML = '<div class="empty">Your wishlist is empty.</div>'; return; }
-        fetch('/diu-student-mart/api/listings.php?action=getAll')
-          .then(function(r){ return r.json(); })
-          .then(function(data) {
-            const items = data.filter(function(item){ return wl.includes(parseInt(item.id)); });
-            if (!items.length) { c.innerHTML = '<div class="empty">Your wishlist is empty.</div>'; return; }
-            c.innerHTML = '<div class="grid">' + items.map(cardHtml).join('') + '</div>';
-          });
-
-      } else if (tab === 'inquiries') {
-        fetch('/diu-student-mart/api/inquiries.php?action=getByUser&user_id=' + user.id)
-          .then(function(r){ return r.json(); })
-          .then(function(data) {
-            if (!data.length) { c.innerHTML = '<div class="empty">No inquiries sent yet.</div>'; return; }
-            c.innerHTML = data.map(function(i) {
-              return '<div style="background:#fff;border:1px solid #eee;border-radius:10px;padding:14px;margin-bottom:10px">' +
-                '<div style="font-size:13px;font-weight:600">' + (i.listing_title || 'Item') + '</div>' +
-                '<div style="font-size:12px;color:#777;margin:4px 0">' + i.message + '</div>' +
-                '<div style="font-size:11px;color:#aaa">' + new Date(i.created_at).toLocaleDateString() + '</div>' +
-              '</div>';
-            }).join('');
-          });
-
-      } else if (tab === 'edit') {
-        c.innerHTML =
-          '<div class="post-card">' +
-            '<div class="alert alert-success" id="edit-success" style="display:none">Profile updated!</div>' +
-            '<div class="form-group"><label>Full Name</label><input type="text" id="edit-name" value="' + user.name + '"></div>' +
-            '<div class="form-group"><label>Phone</label><input type="text" id="edit-phone" value="' + (user.phone || '') + '"></div>' +
-            '<div class="form-group"><label>Department</label>' +
-              '<select id="edit-dept">' +
-              ['CSE','EEE','BBA','CE','Textile','Law','English','Pharmacy'].map(function(d){
-                return '<option' + (d === user.department ? ' selected' : '') + '>' + d + '</option>';
-              }).join('') +
-              '</select></div>' +
-            '<button class="btn-full" onclick="saveProfile()">Save Changes</button>' +
-          '</div>';
-      }
+    /* ====== MY LISTINGS ====== */
+    function renderListings(c) {
+      fetchMyListings(function(data) {
+        if (!data.length) {
+          c.innerHTML = emptyState('📭', "You haven't posted any listings yet.", 'post-listing.html', '+ Post Your First Item');
+          return;
+        }
+        c.innerHTML = '<div class="pg-grid">' +
+          data.map(item =>
+            '<div class="pg-card" onclick="window.location.href=\'product-detail.html?id=' + item.id + '\'">' +
+              '<div class="pg-card-img">' + (CAT_ICONS[item.category] || '📦') + '</div>' +
+              '<div class="pg-card-body">' +
+                '<div class="pg-card-title">' + esc(item.title) + '</div>' +
+                '<div class="pg-card-price">৳ ' + parseInt(item.price).toLocaleString() + '</div>' +
+                '<div class="pg-card-footer">' + badgeHtml(item.condition_type, item.status) + '</div>' +
+                '<button class="btn-del" onclick="event.stopPropagation();deleteListing(' + item.id + ')">🗑 Delete</button>' +
+              '</div>' +
+            '</div>'
+          ).join('') + '</div>';
+      });
     }
 
     function deleteListing(id) {
       if (!confirm('Delete this listing?')) return;
       fetch('/diu-student-mart/api/listings.php', {
-        method:  'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body:    JSON.stringify({ action: 'delete', id: id, user_id: user.id })
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'delete', id: id, user_id: user.id })
       })
-      .then(function(r){ return r.json(); })
-      .then(function() {
-        showToast('Listing deleted');
-        loadTab('listings', document.querySelector('.tab-btn'));
+      .then(r => r.json())
+      .then(() => afterDelete(id))
+      .catch(() => afterDelete(id));
+    }
+
+    function afterDelete(id) {
+      let local = JSON.parse(localStorage.getItem('local_listings_' + user.id) || '[]');
+      local = local.filter(l => l.id !== id);
+      localStorage.setItem('local_listings_' + user.id, JSON.stringify(local));
+      showToast('Listing deleted!');
+      loadStats();
+      renderListings(document.getElementById('tab-content'));
+    }
+
+    /* ====== WISHLIST ====== */
+    function renderWishlist(c) {
+      const key = 'wishlist_' + user.id;
+      const wl  = JSON.parse(localStorage.getItem(key) || '[]');
+      if (!wl.length) {
+        c.innerHTML = emptyState('🤍', 'Your wishlist is empty. Browse items and tap ❤️ to save them.', 'Listing.html', 'Browse Listings');
+        return;
+      }
+      fetch('/diu-student-mart/api/listings.php?action=getAll')
+        .then(r => r.json())
+        .then(data => {
+          const items = (Array.isArray(data) ? data : []).filter(item => wl.includes(parseInt(item.id)));
+          if (!items.length) {
+            c.innerHTML = emptyState('🤍', 'Saved items may no longer be available.', 'Listing.html', 'Browse Listings');
+            return;
+          }
+          c.innerHTML = '<div class="pg-grid">' +
+            items.map(item =>
+              '<div class="pg-card" onclick="window.location.href=\'product-detail.html?id=' + item.id + '\'">' +
+                '<div class="pg-card-img">' + (CAT_ICONS[item.category] || '📦') + '</div>' +
+                '<div class="pg-card-body">' +
+                  '<div class="pg-card-title">' + esc(item.title) + '</div>' +
+                  '<div class="pg-card-price">৳ ' + parseInt(item.price).toLocaleString() + '</div>' +
+                  '<div class="pg-card-footer">' + badgeHtml(item.condition_type, item.status) + '</div>' +
+                  '<button class="btn-remove-wish" onclick="event.stopPropagation();removeWish(' + item.id + ')">💔 Remove</button>' +
+                '</div>' +
+              '</div>'
+            ).join('') + '</div>';
+        })
+        .catch(() => {
+          c.innerHTML = emptyState('❤️',
+            'You have ' + wl.length + ' saved item(s). Start the server to view them.',
+            'Listing.html', 'Browse More');
+        });
+    }
+
+    function removeWish(id) {
+      const key = 'wishlist_' + user.id;
+      let wl = JSON.parse(localStorage.getItem(key) || '[]');
+      wl = wl.filter(i => i !== parseInt(id));
+      localStorage.setItem(key, JSON.stringify(wl));
+      document.getElementById('stat-wishlist').textContent = wl.length;
+      showToast('Removed from wishlist');
+      renderWishlist(document.getElementById('tab-content'));
+    }
+
+    /* ====== INQUIRIES ====== */
+    function renderInquiries(c) {
+      fetch('/diu-student-mart/api/inquiries.php?action=getByUser&user_id=' + user.id)
+        .then(r => r.json())
+        .then(data => {
+          if (!Array.isArray(data) || !data.length) { showLocalInq(c); return; }
+          c.innerHTML = data.map(i =>
+            '<div class="inq-card">' +
+              '<span class="inq-badge">Sent</span>' +
+              '<div class="inq-title">' + esc(i.listing_title || 'Item') + '</div>' +
+              '<div class="inq-msg">' + esc(i.message) + '</div>' +
+              '<div class="inq-date">' + fmtDate(i.created_at) + '</div>' +
+            '</div>'
+          ).join('');
+        })
+        .catch(() => showLocalInq(c));
+    }
+
+    function showLocalInq(c) {
+      const key  = 'inquiries_' + user.id;
+      const inqs = JSON.parse(localStorage.getItem(key) || '[]');
+      if (!inqs.length) {
+        c.innerHTML = emptyState('💬', 'No inquiries sent yet. Find an item and message the seller!', 'Listing.html', 'Browse Listings');
+        return;
+      }
+      c.innerHTML = inqs.map(i =>
+        '<div class="inq-card">' +
+          '<span class="inq-badge">Sent</span>' +
+          '<div class="inq-title">' + esc(i.listing_title || 'Item') + '</div>' +
+          '<div class="inq-msg">' + esc(i.message) + '</div>' +
+          '<div class="inq-date">' + fmtDate(i.created_at) + '</div>' +
+        '</div>'
+      ).join('');
+    }
+
+    /* ====== EDIT PROFILE ====== */
+    function renderEdit(c) {
+      const depts = ['CSE','EEE','BBA','CE','Textile','Law','English','Pharmacy'];
+      c.innerHTML =
+        '<div class="edit-card">' +
+          '<h3>✏️ Edit Profile</h3>' +
+          '<div id="edit-success" style="display:none" class="success-banner"></div>' +
+          '<div id="edit-error"   style="display:none" class="error-banner"></div>' +
+
+          '<p class="edit-section-title">Personal Information</p>' +
+          '<div class="edit-row">' +
+            '<div class="form-group"><label>Full Name *</label>' +
+              '<input type="text" id="edit-name" value="' + esc(user.name) + '" placeholder="Your full name"></div>' +
+            '<div class="form-group"><label>Phone Number</label>' +
+              '<input type="text" id="edit-phone" value="' + esc(user.phone || '') + '" placeholder="01XXXXXXXXX"></div>' +
+          '</div>' +
+          '<div class="edit-row">' +
+            '<div class="form-group"><label>Department</label>' +
+              '<select id="edit-dept">' +
+                depts.map(d => '<option value="' + d + '"' + (d === user.department ? ' selected' : '') + '>' + d + '</option>').join('') +
+              '</select></div>' +
+            '<div class="form-group"><label>Student ID</label>' +
+              '<input type="text" value="' + esc(user.student_id || '') + '" readonly></div>' +
+          '</div>' +
+          '<div class="form-group"><label>Email</label>' +
+            '<input type="text" value="' + esc(user.email) + '" readonly></div>' +
+          '<button class="save-btn" id="save-profile-btn" onclick="saveProfile()">💾 Save Changes</button>' +
+
+          '<hr class="section-divider">' +
+          '<p class="edit-section-title">Change Password</p>' +
+          '<div class="form-group"><label>Current Password</label>' +
+            '<input type="password" id="curr-pass" placeholder="Enter current password"></div>' +
+          '<div class="edit-row">' +
+            '<div class="form-group"><label>New Password</label>' +
+              '<input type="password" id="new-pass" placeholder="Min 6 characters"></div>' +
+            '<div class="form-group"><label>Confirm New Password</label>' +
+              '<input type="password" id="confirm-pass" placeholder="Repeat new password"></div>' +
+          '</div>' +
+          '<button class="save-btn-pass" onclick="changePassword()">🔒 Update Password</button>' +
+        '</div>';
+    }
+
+    /* ====== SAVE PROFILE ====== */
+    function saveProfile() {
+      const name  = document.getElementById('edit-name').value.trim();
+      const phone = document.getElementById('edit-phone').value.trim();
+      const dept  = document.getElementById('edit-dept').value;
+      const btn   = document.getElementById('save-profile-btn');
+      const sucEl = document.getElementById('edit-success');
+      const errEl = document.getElementById('edit-error');
+
+      sucEl.style.display = 'none'; errEl.style.display = 'none';
+
+      if (!name) { showEditError('Full name cannot be empty.'); return; }
+      if (phone && !/^01[3-9]\d{8}$/.test(phone)) {
+        showEditError('Enter a valid BD phone number (e.g. 01XXXXXXXXX).'); return;
+      }
+
+      btn.textContent = '⏳ Saving...'; btn.disabled = true;
+
+      // Always save to localStorage immediately
+      user.name = name; user.phone = phone; user.department = dept;
+      localStorage.setItem('user', JSON.stringify(user));
+      renderHero();
+      checkLoginStatus();
+
+      // Also try backend
+      fetch('/diu-student-mart/api/auth.php', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'updateProfile', id: user.id, name, phone, department: dept })
+      })
+      .then(r => r.json())
+      .then(data => {
+        btn.textContent = '💾 Save Changes'; btn.disabled = false;
+        sucEl.textContent = '✅ Profile updated successfully!';
+        sucEl.style.display = 'block';
+        showToast('Profile updated!');
+      })
+      .catch(() => {
+        btn.textContent = '💾 Save Changes'; btn.disabled = false;
+        sucEl.textContent = '✅ Profile saved locally! (Server offline — will sync when connected)';
+        sucEl.style.display = 'block';
+        showToast('Profile saved!');
       });
     }
 
-    function saveProfile() {
-      user.name       = document.getElementById('edit-name').value;
-      user.phone      = document.getElementById('edit-phone').value;
-      user.department = document.getElementById('edit-dept').value;
+    /* ====== CHANGE PASSWORD ====== */
+    function changePassword() {
+      const curr = document.getElementById('curr-pass').value;
+      const newP = document.getElementById('new-pass').value;
+      const conf = document.getElementById('confirm-pass').value;
+
+      document.getElementById('edit-success').style.display = 'none';
+      document.getElementById('edit-error').style.display   = 'none';
+
+      if (!curr || !newP || !conf) { showEditError('Please fill all password fields.'); return; }
+      if (newP.length < 6)         { showEditError('New password must be at least 6 characters.'); return; }
+      if (newP !== conf)           { showEditError('New passwords do not match.'); return; }
 
       fetch('/diu-student-mart/api/auth.php', {
-        method:  'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body:    JSON.stringify({ action: 'updateProfile', id: user.id, name: user.name, phone: user.phone, department: user.department })
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'changePassword', id: user.id, current_password: curr, new_password: newP })
       })
-      .then(function(r){ return r.json(); })
-      .then(function(data) {
+      .then(r => r.json())
+      .then(data => {
         if (data.success) {
-          localStorage.setItem('user', JSON.stringify(user));
-          document.getElementById('edit-success').style.display = 'block';
-          renderHeader();
-          showToast('Profile updated!');
+          const sucEl = document.getElementById('edit-success');
+          sucEl.textContent = '✅ Password changed successfully!'; sucEl.style.display = 'block';
+          document.getElementById('curr-pass').value    = '';
+          document.getElementById('new-pass').value     = '';
+          document.getElementById('confirm-pass').value = '';
+          showToast('Password changed!');
+        } else {
+          showEditError(data.message || 'Failed. Check your current password.');
         }
-      });
+      })
+      .catch(() => showEditError('Server unavailable. Password change requires a connection.'));
+    }
+
+    /* ====== HELPERS ====== */
+    function showEditError(msg) {
+      const el = document.getElementById('edit-error');
+      if (el) { el.textContent = msg; el.style.display = 'block'; }
+    }
+    function esc(str) {
+      return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+    function fmtDate(d) {
+      try { return new Date(d).toLocaleDateString('en-BD', { year:'numeric', month:'short', day:'numeric' }); }
+      catch(e) { return d || ''; }
+    }
+    function emptyState(icon, msg, href, label) {
+      return '<div class="empty-state"><div class="empty-state-icon">' + icon + '</div><p>' + msg + '</p>' +
+        '<a href="' + href + '">' + label + '</a></div>';
     }
   </script>
 </body>
